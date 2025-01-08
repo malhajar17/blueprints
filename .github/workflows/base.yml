@@ -1,0 +1,23 @@
+---
+# .github/workflows/reusable.yml
+name: Reusable Base Workflow
+
+on:
+  workflow_call:
+
+env:
+  LANG: en_US.UTF-8
+
+jobs:
+  common-ci-checks:
+    name: Common CI Checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - uses: actions/setup-python@v5
+
+    - name: Pre-commit
+      uses: pre-commit/action@v3.0.1
