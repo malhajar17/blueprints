@@ -150,4 +150,4 @@ python dataset/prepare_save_dataset.py \
 ```
 
 The generated dataset will be created in the directory set as the value of `--tokenized_dataset_save_dir`, in this case: `gpt2-tokenized-wikitext`.
-Keep in mind that you can user other combinations of datasets and models available on HuggingFace.
+Keep in mind that you can use other combinations of datasets and models available on HuggingFace.
