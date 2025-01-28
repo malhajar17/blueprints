@@ -1,0 +1,83 @@
+---
+name: Run e2e tests
+on:
+  workflow_dispatch:
+    inputs:
+      revision:
+        description: FCS revision parameter (branch name or commit SHA) to run the tests on
+        type: string
+        required: true
+        default: main
+      access-token:
+        description: Access token
+        type: string
+        required: true
+      refresh-token:
+        description: Refresh token
+        type: string
+        required: true
+      env:
+        description: Environment to run the tests on
+        type: choice
+        required: true
+        default: staging
+        options:
+        - staging
+        - prod
+jobs:
+  pre_test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      rnd_id: ${{ steps.rnd_id.outputs.rnd_id }}
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+    - name: Generate random id
+      id: rnd_id
+      run: |
+        rnd_id=$(openssl rand -hex 2)
+        echo "rnd_id=$rnd_id" >> $GITHUB_OUTPUT
+
+  e2e_tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60 # Not too small, training is fast, but compilation takes time and test jobs can be queued for a while
+    needs: pre_test
+    permissions:
+      id-token: write
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        test_file_name: [gpt2-1x1.sh, gpt2-2x8.sh, gpt2-resume-1x1.sh, gpt2-streaming-1x1.sh, llama31-1x2.sh, text-to-image-lora-SDXL-1x2.sh, text-to-speech-1x2.sh]
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Download flexai
+      run: |
+        if [ "${{ github.event.inputs.env }}" == "prod" ]; then
+            curl -fsSL https://cli.flex.ai/install.sh | sh
+        else
+            curl -fsSL https://cli.staging.flexsystems.ai/install.sh | sh
+        fi
+
+    - name: Add ~/.flexai/bin to $PATH
+      run: |
+        echo "$HOME/.flexai/bin" >> $GITHUB_PATH
+
+    - name: Run check flexai doctor
+      run: flexai doctor
+
+    - name: Inject inputs into ~/.flexai/config
+      run: |
+        set +x
+        echo "access-token: ${{ github.event.inputs.access-token }}" >> $HOME/.flexai/config.yaml
+        echo "refresh-token: ${{ github.event.inputs.refresh-token }}" >> $HOME/.flexai/config.yaml
+
+    - name: Run ${{ matrix.test_file_name }}
+      run: |
+        export TRAINING_SUFFIX=${{ needs.pre_test.outputs.rnd_id }}-${{ github.run_number }}-${{ github.run_attempt }}
+        export TRAINING_REVISION=${{ github.event.inputs.revision }}
+        bash ci/e2e_tests/${{ matrix.test_file_name }}

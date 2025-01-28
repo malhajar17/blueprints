@@ -17,6 +17,12 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v4
 
+    - name: Check Jira references
+      uses: flexaihq/actions/check-jira-ref@main
+      if: github.event_name == 'pull_request'
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
     - uses: actions/setup-python@v5
 
     - name: Pre-commit
