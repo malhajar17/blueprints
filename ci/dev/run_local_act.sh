@@ -2,7 +2,7 @@
 # Before you run this script, make sure you have a fresh FCS token:
 # flexai auth login
 # Here the tests are executed on staging environment and on the main branch.
-REVISION=e2e-tests
+REVISION=main
 ACCESS_TOKEN=$(cat ~/.flexai/config.yaml | grep access-token: | cut -d " " -f2)
 REFRESH_TOKEN=$(cat ~/.flexai/config.yaml | grep refresh-token: | cut -d " " -f2)
 ENV=staging
