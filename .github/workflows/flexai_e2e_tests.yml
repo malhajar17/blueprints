@@ -50,7 +50,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        test_file_name: [gpt2-1x1.sh, gpt2-2x8.sh, gpt2-resume-1x1.sh, gpt2-streaming-1x1.sh, llama31-1x2.sh, text-to-image-lora-SDXL-1x2.sh, text-to-speech-1x2.sh]
+        test_file_name: [gpt2-1x1.sh, gpt2-2x8.sh, gpt2-flash-attention-1x1.sh, gpt2-resume-1x1.sh, gpt2-streaming-1x1.sh, llama31-1x2.sh, text-to-image-lora-SDXL-1x2.sh,
+          text-to-speech-1x2.sh]
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
