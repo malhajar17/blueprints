@@ -1,8 +1,8 @@
 #!/bin/bash
 set -e
 
-TRAINING_NAME=text-to-speech-1x2-e2e-$TRAINING_SUFFIX
-flexai training run $TRAINING_NAME -a 2 -n 1 -D ci-text-to-speech-fr -s fcs-experiments-private -r $TRAINING_REVISION -S WANDB_API_KEY=GC_WANDB_API_KEY -E WANDB_PROJECT=ci-e2e -- code/text-to-speech/run_parler_tts_training.py \
+TRAINING_NAME=text-to-speech-1x1-e2e-$TRAINING_SUFFIX
+flexai training run $TRAINING_NAME -D ci-text-to-speech-fr -s fcs-experiments-private -r $TRAINING_REVISION -S WANDB_API_KEY=GC_WANDB_API_KEY -E WANDB_PROJECT=ci-e2e -- code/text-to-speech/run_parler_tts_training.py \
     --model_name_or_path=parler-tts/parler_tts_mini_v0.1 \
     --save_to_disk=/input \
     --temporary_save_to_disk=./audio_code_tmp/ \
@@ -62,7 +62,7 @@ timeout 30 flexai training logs $TRAINING_NAME > logs.txt || echo "gettings logs
 echo "Checking log content..."
 grep "Loading dataset from disk:" logs.txt
 grep "wandb: Run summary:" logs.txt
-grep "Total train batch size (w. parallel & distributed) = 48" logs.txt # 1x2x4x6
+grep "Total train batch size (w. parallel & distributed) = 24" logs.txt # 1x1x4x6
 echo "Checking fetch content..."
 flexai training fetch $TRAINING_NAME
 unzip -l output_0.zip | grep output/checkpoint-50-epoch-0/pytorch_model.bin

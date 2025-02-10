@@ -1,8 +1,8 @@
 #!/bin/bash
 set -e
 
-TRAINING_NAME=gpt2-2x8-e2e-$TRAINING_SUFFIX
-flexai training run $TRAINING_NAME -a 8 -n 2 -D ci-gpt2-tokenized-wikitext -s fcs-experiments-private -r $TRAINING_REVISION -- code/causal-language-modeling/train.py \
+TRAINING_NAME=gpt2-2x1-e2e-$TRAINING_SUFFIX
+flexai training run $TRAINING_NAME -a 1 -n 2 -D ci-gpt2-tokenized-wikitext -s fcs-experiments-private -r $TRAINING_REVISION -- code/causal-language-modeling/train.py \
     --do_eval \
     --do_train \
     --dataset_name wikitext \
@@ -22,7 +22,7 @@ timeout 30 flexai training logs $TRAINING_NAME > logs.txt || echo "gettings logs
 echo "Checking log content..."
 grep "Loading tokenized dataset from:" logs.txt
 grep "\*\*\*\*\* eval metrics \*\*\*\*\*" logs.txt
-grep "Total train batch size (w. parallel, distributed & accumulation) = 128" logs.txt # 2*8*8
+grep "Total train batch size (w. parallel, distributed & accumulation) = 16" logs.txt # 2*1*8
 echo "Checking fetch content..."
 flexai training fetch $TRAINING_NAME
 unzip -l output_0.zip | grep output/checkpoint-50/model.safetensors

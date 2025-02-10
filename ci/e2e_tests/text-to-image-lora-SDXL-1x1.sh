@@ -1,8 +1,8 @@
 #!/bin/bash
 set -e
 
-TRAINING_NAME=text-to-image-lora-SDXL-1x2-e2e-$TRAINING_SUFFIX
-flexai training run $TRAINING_NAME -a 2 -n 1 -D ci-sdxl-tokenized-naruto -s fcs-experiments-private -r $TRAINING_REVISION -S HF_TOKEN=GC_HF_TOKEN -S WANDB_API_KEY=GC_WANDB_API_KEY -E WANDB_PROJECT=ci-e2e -- code/diffuser/train_text_to_image_lora_sdxl.py \
+TRAINING_NAME=text-to-image-lora-SDXL-1x1-e2e-$TRAINING_SUFFIX
+flexai training run $TRAINING_NAME -D ci-sdxl-tokenized-naruto -s fcs-experiments-private -r $TRAINING_REVISION -S HF_TOKEN=GC_HF_TOKEN -S WANDB_API_KEY=GC_WANDB_API_KEY -E WANDB_PROJECT=ci-e2e -- code/diffuser/train_text_to_image_lora_sdxl.py \
     --pretrained_model_name_or_path stabilityai/stable-diffusion-xl-base-1.0 \
     --pretrained_vae_model_name_or_path madebyollin/sdxl-vae-fp16-fix \
     --train_dataset_load_dir /input \
@@ -28,7 +28,7 @@ flexai training run $TRAINING_NAME -a 2 -n 1 -D ci-sdxl-tokenized-naruto -s fcs-
 timeout 30 flexai training logs $TRAINING_NAME > logs.txt || echo "gettings logs.."
 echo "Checking log content..."
 grep "Training completed." logs.txt
-grep "Total train batch size (w. parallel, distributed & accumulation) = 2" logs.txt # 1x2x1
+grep "Total train batch size (w. parallel, distributed & accumulation) = 1" logs.txt # 1x1x1
 echo "Checking fetch content..."
 flexai training fetch $TRAINING_NAME
 unzip -l output_0.zip | grep output/checkpoint-50/pytorch_lora_weights.safetensors
