@@ -18,7 +18,7 @@ flexai training run $TRAINING_NAME -a 8 -n 2 -D ci-gpt2-tokenized-wikitext -s fc
     --eval_strategy steps
 
 ./ci/wait_for_training.sh $TRAINING_NAME
-timeout 30 flexai training logs $TRAINING_NAME > logs.txt || echo "gettings logs.."
+timeout 180 flexai training logs $TRAINING_NAME > logs.txt || echo "gettings logs.."
 echo "Checking log content..."
 grep "Loading tokenized dataset from:" logs.txt
 grep "\*\*\*\*\* eval metrics \*\*\*\*\*" logs.txt

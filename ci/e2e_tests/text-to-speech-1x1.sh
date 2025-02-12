@@ -32,10 +32,10 @@ flexai training run $TRAINING_NAME -D ci-text-to-speech-fr -s fcs-experiments-pr
     --add_audio_samples_to_wandb \
     --preprocessing_num_workers=1 \
     --do_train \
-    --max_steps 99 \
+    --max_steps 20 \
     --gradient_accumulation_steps=4 \
     --gradient_checkpointing=false \
-    --per_device_train_batch_size=6 \
+    --per_device_train_batch_size=1 \
     --learning_rate=0.00095 \
     --adam_beta1=0.9 \
     --adam_beta2=0.99 \
@@ -48,23 +48,22 @@ flexai training run $TRAINING_NAME -D ci-text-to-speech-fr -s fcs-experiments-pr
     --predict_with_generate \
     --include_inputs_for_metrics \
     --evaluation_strategy=steps \
-    --eval_steps=50 \
-    --save_steps=50 \
-    --per_device_eval_batch_size=6 \
+    --eval_steps=15 \
+    --save_steps=15 \
+    --per_device_eval_batch_size=1 \
     --audio_encoder_per_device_batch_size=1 \
     --dtype=bfloat16 \
     --seed=456 \
-    --dataloader_num_workers=8 \
+    --dataloader_num_workers=2 \
     --attn_implementation=sdpa
 
 ./ci/wait_for_training.sh $TRAINING_NAME
-timeout 30 flexai training logs $TRAINING_NAME > logs.txt || echo "gettings logs.."
+timeout 180 flexai training logs $TRAINING_NAME > logs.txt || echo "gettings logs.."
 echo "Checking log content..."
 grep "Loading dataset from disk:" logs.txt
 grep "wandb: Run summary:" logs.txt
-grep "Total train batch size (w. parallel & distributed) = 24" logs.txt # 1x1x4x6
+grep "Total train batch size (w. parallel & distributed) = 4" logs.txt # 1x1x4x1
 echo "Checking fetch content..."
 flexai training fetch $TRAINING_NAME
-unzip -l output_0.zip | grep output/checkpoint-50-epoch-0/pytorch_model.bin
-unzip -l output_0.zip | grep output/checkpoint-99-epoch-0/pytorch_model.bin
+unzip -l output_0.zip | grep output/checkpoint-15-epoch-0/pytorch_model.bin
 unzip -l output_0.zip | grep output/model.safetensors

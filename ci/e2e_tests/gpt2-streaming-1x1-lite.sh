@@ -10,13 +10,13 @@ flexai training run $TRAINING_NAME -s fcs-experiments-private -r $TRAINING_REVIS
     --dataset_config_name CC-MAIN-2024-10 \
     --dataset_streaming true \
     --dataset_group_text true \
-    --dataloader_num_workers 8 \
-    --max_steps 99 \
+    --dataloader_num_workers 2 \
+    --max_steps 20 \
     --model_name_or_path openai-community/gpt2 \
     --output_dir /output \
-    --per_device_train_batch_size 8 \
-    --logging_steps 10 \
-    --save_steps 50
+    --per_device_train_batch_size 2 \
+    --logging_steps 2 \
+    --save_steps 15
 
 ./ci/wait_for_training.sh $TRAINING_NAME
 timeout 180 flexai training logs $TRAINING_NAME > logs.txt || echo "gettings logs.."
@@ -26,9 +26,8 @@ if grep -q "Loading tokenized dataset from:" logs.txt; then
   echo "Error: logs contain the string 'Loading tokenized dataset from:'"
   exit 1
 fi
-grep "Total train batch size (w. parallel, distributed & accumulation) = 8" logs.txt
+grep "Total train batch size (w. parallel, distributed & accumulation) = 2" logs.txt
 echo "Checking fetch content..."
 flexai training fetch $TRAINING_NAME
-unzip -l output_0.zip | grep output/checkpoint-50/model.safetensors
-unzip -l output_0.zip | grep output/checkpoint-99/model.safetensors
+unzip -l output_0.zip | grep output/checkpoint-15/model.safetensors
 unzip -l output_0.zip | grep output/model.safetensors

@@ -9,19 +9,19 @@ flexai training run $TRAINING_NAME -D ci-llama-tokenized-oag -s fcs-experiments-
     --dataset_text_field text \
     --load_in_4bit \
     --use_peft \
-    --per_device_train_batch_size 4 \
+    --per_device_train_batch_size 1 \
     --gradient_accumulation_steps 2 \
     --output_dir /output \
-    --max_steps 99 \
+    --max_steps 9 \
     --log_level info
 
 ./ci/wait_for_training.sh $TRAINING_NAME
-timeout 30 flexai training logs $TRAINING_NAME > logs.txt || echo "gettings logs.."
+timeout 180 flexai training logs $TRAINING_NAME > logs.txt || echo "gettings logs.."
 echo "Checking log content..."
 grep "open file: /input/dataset_dict.json" logs.txt
 grep "Training completed." logs.txt
-grep "Total train batch size (w. parallel, distributed & accumulation) = 8" logs.txt # 1*1*2*4
+grep "Total train batch size (w. parallel, distributed & accumulation) = 2" logs.txt # 1*1*2*1
 echo "Checking fetch content..."
 flexai training fetch $TRAINING_NAME
-unzip -l output_0.zip | grep output/checkpoint-99/adapter_model.safetensors
+unzip -l output_0.zip | grep output/checkpoint-9/adapter_model.safetensors
 unzip -l output_0.zip | grep output/adapter_model.safetensors

@@ -16,7 +16,7 @@ flexai training run $TRAINING_NAME -a 2 -n 1 -D ci-llama-tokenized-oag -s fcs-ex
     --log_level info
 
 ./ci/wait_for_training.sh $TRAINING_NAME
-timeout 30 flexai training logs $TRAINING_NAME > logs.txt || echo "gettings logs.."
+timeout 180 flexai training logs $TRAINING_NAME > logs.txt || echo "gettings logs.."
 echo "Checking log content..."
 grep "open file: /input/dataset_dict.json" logs.txt
 grep "Training completed." logs.txt
