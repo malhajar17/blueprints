@@ -24,7 +24,7 @@ flexai training run $TRAINING_NAME -D ci-text-to-speech-fr -s fcs-experiments-pr
     --target_audio_column_name=audio \
     --description_column_name=text_description \
     --prompt_column_name=text \
-    --max_eval_samples=10 \
+    --max_eval_samples=2 \
     --max_duration_in_seconds=30 \
     --min_duration_in_seconds=2.0 \
     --max_text_length=600 \

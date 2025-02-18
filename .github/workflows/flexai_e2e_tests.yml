@@ -40,18 +40,35 @@ jobs:
         rnd_id=$(openssl rand -hex 2)
         echo "rnd_id=$rnd_id" >> $GITHUB_OUTPUT
 
+  fcs_experiments_prepare:
+    runs-on: ubuntu-latest
+
+    outputs:
+      test_file_names: ${{ steps.test_file_names.outputs.test_file_names }}
+
+    steps:
+    - name: Define test files
+      id: test_file_names
+      run: |
+        common_tests='"gpt2-1x1.sh", "gpt2-resume-1x1.sh", "gpt2-flash-attention-1x1.sh"'
+        if [[ "${{ github.event.inputs.env }}" == "production" ]]; then
+          echo 'test_file_names=[' ${common_tests} ', "gpt2-2x8.sh", "gpt2-streaming-1x1.sh", "llama31-1x2.sh", "text-to-image-lora-SDXL-1x2.sh", "text-to-speech-1x2.sh" ]' >> "$GITHUB_OUTPUT"
+        elif [[ "${{ github.event.inputs.env }}" == "staging" ]]; then
+          echo 'test_file_names=[' ${common_tests} ', "gpt2-2x1.sh", "gpt2-streaming-1x1-lite.sh", "llama31-1x1.sh", "text-to-image-lora-SDXL-1x1.sh", "text-to-speech-1x1.sh" ]' >> "$GITHUB_OUTPUT"
+        fi
+
   e2e_tests:
     runs-on: ubuntu-latest
     timeout-minutes: 60 # Not too small, training is fast, but compilation takes time and test jobs can be queued for a while
-    needs: pre_test
+    needs: [pre_test, fcs_experiments_prepare]
     permissions:
       id-token: write
       contents: read
     strategy:
       fail-fast: false
       matrix:
-        test_file_name: [gpt2-1x1.sh, gpt2-2x8.sh, gpt2-flash-attention-1x1.sh, gpt2-resume-1x1.sh, gpt2-streaming-1x1.sh, llama31-1x2.sh, text-to-image-lora-SDXL-1x2.sh,
-          text-to-speech-1x2.sh]
+        test_file_name: ${{ fromJSON(needs.fcs_experiments_prepare.outputs.test_file_names) }}
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
