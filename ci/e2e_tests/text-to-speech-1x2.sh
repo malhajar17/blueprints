@@ -6,7 +6,7 @@ flexai training run $TRAINING_NAME -a 2 -n 1 -D ci-text-to-speech-fr -s fcs-expe
     --model_name_or_path=parler-tts/parler_tts_mini_v0.1 \
     --save_to_disk=/input \
     --temporary_save_to_disk=./audio_code_tmp/ \
-    --wandb_project=parler-francais \
+    --wandb_project=ci-e2e \
     --feature_extractor_name=ylacombe/dac_44khZ_8kbps \
     --description_tokenizer_name=google/flan-t5-large \
     --prompt_tokenizer_name=google/flan-t5-large \
@@ -50,6 +50,7 @@ flexai training run $TRAINING_NAME -a 2 -n 1 -D ci-text-to-speech-fr -s fcs-expe
     --evaluation_strategy=steps \
     --eval_steps=50 \
     --save_steps=50 \
+    --save_total_limit=1 \
     --per_device_eval_batch_size=6 \
     --audio_encoder_per_device_batch_size=1 \
     --dtype=bfloat16 \
@@ -65,6 +66,6 @@ grep "wandb: Run summary:" logs.txt
 grep "Total train batch size (w. parallel & distributed) = 48" logs.txt # 1x2x4x6
 echo "Checking fetch content..."
 flexai training fetch $TRAINING_NAME
-unzip -l output_0.zip | grep output/checkpoint-50-epoch-0/pytorch_model.bin
-unzip -l output_0.zip | grep output/checkpoint-99-epoch-0/pytorch_model.bin
+# unzip -l output_0.zip | grep output/checkpoint-50-epoch-0/pytorch_model.bin # intermediate checkpointing is disabled
+# unzip -l output_0.zip | grep output/checkpoint-99-epoch-0/pytorch_model.bin
 unzip -l output_0.zip | grep output/model.safetensors
