@@ -2,7 +2,7 @@
 set -e
 
 TRAINING_NAME=gpt2-2x1-e2e-$TRAINING_SUFFIX
-flexai training run $TRAINING_NAME -a 1 -n 2 -D ci-gpt2-tokenized-wikitext -s fcs-experiments-private -r $TRAINING_REVISION -- code/causal-language-modeling/train.py \
+flexai training run $TRAINING_NAME -a 1 -n 2 -D ci-gpt2-tokenized-wikitext -s $SOURCE -r $TRAINING_REVISION -- code/causal-language-modeling/train.py \
     --do_eval \
     --do_train \
     --dataset_name wikitext \

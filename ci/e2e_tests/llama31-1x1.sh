@@ -2,7 +2,7 @@
 set -e
 
 TRAINING_NAME=llama3-1-1x1-e2e-$TRAINING_SUFFIX
-flexai training run $TRAINING_NAME -D ci-llama-tokenized-oag -s fcs-experiments-private -r $TRAINING_REVISION -S HF_TOKEN=GC_HF_TOKEN -S WANDB_API_KEY=GC_WANDB_API_KEY -E WANDB_PROJECT=ci-e2e -- code/causal-language-modeling-qlora/train.py \
+flexai training run $TRAINING_NAME -D ci-llama-tokenized-oag -s $SOURCE -r $TRAINING_REVISION -S HF_TOKEN=GC_HF_TOKEN -S WANDB_API_KEY=GC_WANDB_API_KEY -E WANDB_PROJECT=ci-e2e -- code/causal-language-modeling-qlora/train.py \
     --model_name_or_path meta-llama/Meta-Llama-3.1-8B \
     --dataset_name timdettmers/openassistant-guanaco \
     --tokenized_dataset_load_dir /input \

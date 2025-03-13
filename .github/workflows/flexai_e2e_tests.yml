@@ -77,8 +77,10 @@ jobs:
       run: |
         if [ "${{ github.event.inputs.env }}" == "prod" ]; then
             curl -fsSL https://cli.flex.ai/install.sh | sh
+            echo "SOURCE=fcs-experiments-private" >> $GITHUB_ENV
         else
             curl -fsSL https://cli.staging.flexsystems.ai/install.sh | sh
+            echo "SOURCE=https://github.com/flexaihq/fcs-experiments-private.git" >> $GITHUB_ENV
         fi
 
     - name: Add ~/.flexai/bin to $PATH
