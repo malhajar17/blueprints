@@ -19,7 +19,7 @@ flexai training run $TRAINING_NAME -s $SOURCE -r $TRAINING_REVISION -D ci-llama-
     --save_steps 15
 
 ./ci/wait_for_training.sh $TRAINING_NAME
-timeout 180 flexai training logs $TRAINING_NAME > logs.txt || echo "gettings logs.."
+timeout 300 flexai training logs $TRAINING_NAME > logs.txt || { echo "Error: Timeout while getting logs."; exit 1; }
 echo "Checking log content..."
 grep "Streaming dataset" logs.txt
 if grep -q "Loading tokenized dataset from:" logs.txt; then

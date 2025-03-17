@@ -25,7 +25,7 @@ flexai training run $TRAINING_NAME -a 2 -n 1 -D ci-sdxl-tokenized-naruto -s $SOU
 #     --validation_prompt "'cute dragon creature'"
 
 ./ci/wait_for_training.sh $TRAINING_NAME
-timeout 180 flexai training logs $TRAINING_NAME > logs.txt || echo "gettings logs.."
+timeout 300 flexai training logs $TRAINING_NAME > logs.txt || { echo "Error: Timeout while getting logs."; exit 1; }
 echo "Checking log content..."
 grep "Training completed." logs.txt
 grep "Total train batch size (w. parallel, distributed & accumulation) = 2" logs.txt # 1x2x1

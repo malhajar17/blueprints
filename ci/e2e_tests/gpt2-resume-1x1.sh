@@ -16,7 +16,7 @@ flexai training run $TRAINING_NAME -D ci-gpt2-tokenized-wikitext -s $SOURCE --ch
     --eval_strategy steps
 
 ./ci/wait_for_training.sh $TRAINING_NAME
-timeout 180 flexai training logs $TRAINING_NAME > logs.txt || echo "gettings logs.."
+timeout 300 flexai training logs $TRAINING_NAME > logs.txt || { echo "Error: Timeout while getting logs."; exit 1; }
 echo "Checking log content..."
 grep "Loading tokenized dataset from:" logs.txt
 grep "Continuing training from global step 500" logs.txt

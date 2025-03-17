@@ -59,7 +59,7 @@ flexai training run $TRAINING_NAME -a 2 -n 1 -D ci-text-to-speech-fr -s $SOURCE 
     --attn_implementation=sdpa
 
 ./ci/wait_for_training.sh $TRAINING_NAME
-timeout 180 flexai training logs $TRAINING_NAME > logs.txt || echo "gettings logs.."
+timeout 300 flexai training logs $TRAINING_NAME > logs.txt || { echo "Error: Timeout while getting logs."; exit 1; }
 echo "Checking log content..."
 grep "Loading dataset from disk:" logs.txt
 grep "wandb: Run summary:" logs.txt
