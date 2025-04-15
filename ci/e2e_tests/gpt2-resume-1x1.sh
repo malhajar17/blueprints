@@ -6,7 +6,7 @@ flexai training run $TRAINING_NAME -D ci-gpt2-tokenized-wikitext -u $SOURCE --ch
     --do_eval \
     --do_train \
     --dataset_name wikitext \
-    --tokenized_dataset_load_dir /input \
+    --tokenized_dataset_load_dir /input/ci-gpt2-tokenized-wikitext \
     --model_name_or_path /checkpoint \
     --resume_from_checkpoint /checkpoint \
     --output_dir /output \

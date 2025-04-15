@@ -5,7 +5,7 @@ TRAINING_NAME=text-to-image-lora-SDXL-1x2-e2e-$TRAINING_SUFFIX
 flexai training run $TRAINING_NAME -a 2 -n 1 -D ci-sdxl-tokenized-naruto -u $SOURCE -b $TRAINING_REVISION -S HF_TOKEN=GC_HF_TOKEN -S WANDB_API_KEY=GC_WANDB_API_KEY -E WANDB_PROJECT=ci-e2e -- code/diffuser/train_text_to_image_lora_sdxl.py \
     --pretrained_model_name_or_path stabilityai/stable-diffusion-xl-base-1.0 \
     --pretrained_vae_model_name_or_path madebyollin/sdxl-vae-fp16-fix \
-    --train_dataset_load_dir /input \
+    --train_dataset_load_dir /input/ci-sdxl-tokenized-naruto \
     --caption_column text \
     --resolution 1024 \
     --random_flip \

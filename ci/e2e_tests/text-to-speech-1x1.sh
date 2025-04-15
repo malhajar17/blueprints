@@ -4,7 +4,7 @@ set -e
 TRAINING_NAME=text-to-speech-1x1-e2e-$TRAINING_SUFFIX
 flexai training run $TRAINING_NAME -D ci-text-to-speech-fr -u $SOURCE -b $TRAINING_REVISION -S WANDB_API_KEY=GC_WANDB_API_KEY -E WANDB_PROJECT=ci-e2e -- code/text-to-speech/run_parler_tts_training.py \
     --model_name_or_path=parler-tts/parler_tts_mini_v0.1 \
-    --save_to_disk=/input \
+    --save_to_disk=/input/ci-text-to-speech-fr \
     --temporary_save_to_disk=./audio_code_tmp/ \
     --wandb_project=ci-e2e \
     --feature_extractor_name=ylacombe/dac_44khZ_8kbps \

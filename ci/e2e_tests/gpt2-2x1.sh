@@ -6,7 +6,7 @@ flexai training run $TRAINING_NAME -a 1 -n 2 -D ci-gpt2-tokenized-wikitext -u $S
     --do_eval \
     --do_train \
     --dataset_name wikitext \
-    --tokenized_dataset_load_dir /input \
+    --tokenized_dataset_load_dir /input/ci-gpt2-tokenized-wikitext \
     --model_name_or_path openai-community/gpt2 \
     --output_dir /output \
     --per_device_train_batch_size 8 \

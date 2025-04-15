@@ -5,7 +5,7 @@ TRAINING_NAME=llama3-1-1x1-e2e-$TRAINING_SUFFIX
 flexai training run $TRAINING_NAME -D ci-llama-tokenized-oag -u $SOURCE -b $TRAINING_REVISION -S HF_TOKEN=GC_HF_TOKEN -S WANDB_API_KEY=GC_WANDB_API_KEY -E WANDB_PROJECT=ci-e2e -- code/causal-language-modeling-qlora/train.py \
     --model_name_or_path meta-llama/Meta-Llama-3.1-8B \
     --dataset_name timdettmers/openassistant-guanaco \
-    --tokenized_dataset_load_dir /input \
+    --tokenized_dataset_load_dir /input/ci-llama-tokenized-oag \
     --dataset_text_field text \
     --load_in_4bit \
     --use_peft \
@@ -18,7 +18,7 @@ flexai training run $TRAINING_NAME -D ci-llama-tokenized-oag -u $SOURCE -b $TRAI
 ./ci/wait_for_training.sh $TRAINING_NAME
 timeout 300 flexai training logs $TRAINING_NAME > logs.txt || { echo "Error: Timeout while getting logs."; exit 1; }
 echo "Checking log content..."
-grep "open file: /input/dataset_dict.json" logs.txt
+grep "open file: /input/ci-llama-tokenized-oag/dataset_dict.json" logs.txt
 grep "Training completed." logs.txt
 grep "Total train batch size (w. parallel, distributed & accumulation) = 2" logs.txt # 1*1*2*1
 echo "Checking fetch content..."
