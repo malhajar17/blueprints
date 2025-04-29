@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e
+set -ex
 
 TRAINING_NAME=llama3-1-1x2-e2e-$TRAINING_SUFFIX
 flexai training run $TRAINING_NAME -a 2 -n 1 -D ci-llama-tokenized-oag -u $SOURCE -b $TRAINING_REVISION -S HF_TOKEN=GC_HF_TOKEN -S WANDB_API_KEY=GC_WANDB_API_KEY -E WANDB_PROJECT=ci-e2e -- code/causal-language-modeling-qlora/train.py \

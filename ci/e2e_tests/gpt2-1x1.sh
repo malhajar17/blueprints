@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e
+set -ex
 
 TRAINING_NAME=gpt2-1x1-e2e-$TRAINING_SUFFIX
 flexai training run $TRAINING_NAME -D ci-gpt2-tokenized-wikitext -u $SOURCE -b $TRAINING_REVISION -- code/causal-language-modeling/train.py \

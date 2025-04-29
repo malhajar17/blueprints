@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e
+set -ex
 
 echo "Flash-Attention is disabled at the moment, see AIS-214"
 

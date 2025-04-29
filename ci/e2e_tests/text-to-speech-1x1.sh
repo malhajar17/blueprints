@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e
+set -ex
 
 TRAINING_NAME=text-to-speech-1x1-e2e-$TRAINING_SUFFIX
 flexai training run $TRAINING_NAME -D ci-text-to-speech-fr -u $SOURCE -b $TRAINING_REVISION -S WANDB_API_KEY=GC_WANDB_API_KEY -E WANDB_PROJECT=ci-e2e -- code/text-to-speech/run_parler_tts_training.py \

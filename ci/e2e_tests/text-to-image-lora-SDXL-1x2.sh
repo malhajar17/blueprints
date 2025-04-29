@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e
+set -ex
 
 TRAINING_NAME=text-to-image-lora-SDXL-1x2-e2e-$TRAINING_SUFFIX
 flexai training run $TRAINING_NAME -a 2 -n 1 -D ci-sdxl-tokenized-naruto -u $SOURCE -b $TRAINING_REVISION -S HF_TOKEN=GC_HF_TOKEN -S WANDB_API_KEY=GC_WANDB_API_KEY -E WANDB_PROJECT=ci-e2e -- code/diffuser/train_text_to_image_lora_sdxl.py \
