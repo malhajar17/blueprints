@@ -1,6 +1,9 @@
 #!/bin/bash
 set -e
 
+echo "Flash-Attention is disabled at the moment, see AIS-214"
+
+exit 0
 TRAINING_NAME=gpt2-flash-attention-1x1-e2e-$TRAINING_SUFFIX
 flexai training run $TRAINING_NAME -D ci-gpt2-tokenized-wikitext -u $SOURCE -b $TRAINING_REVISION -- code/causal-language-modeling/train.py \
     --do_eval \
