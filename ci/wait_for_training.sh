@@ -7,7 +7,7 @@ flexai training inspect $TRAINING_NAME
 
 while true; do
   sleep 10
-  INSPECT=$(flexai training inspect $TRAINING_NAME -j | sed -n '/^{/,$p') # ignore the first line that is not a json
+  INSPECT=$(flexai training inspect $TRAINING_NAME --json | sed -n '/^{/,$p') # ignore the first line that is not a json
   runtime_status=$(echo "$INSPECT" | jq -r .runtime.status)
   echo "Runtime status: $runtime_status"
 

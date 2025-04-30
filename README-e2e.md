@@ -39,7 +39,7 @@ You can modify the script `ci/dev/trigger_gh_workflow.sh` to customize its behav
    - Change the `REVISION` variable to specify a different branch.
 
 2. **Environment**:
-   - Update the `ENV` variable to target a different environment (e.g., `prod`).
+   - Update the `ENV` variable to target a different environment (e.g., `production`).
 
 3. **Access Tokens**:
    - Ensure that valid tokens are present in `~/.flexai/config.yaml`.

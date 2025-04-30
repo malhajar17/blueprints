@@ -23,7 +23,19 @@ on:
         default: staging
         options:
         - staging
-        - prod
+        - production
+      basic:
+        description: Run basic
+        type: boolean
+        default: true
+      hf-connector:
+        description: Run HF connector
+        type: boolean
+        default: true
+
+env:
+  FLEXAI_CLI_URL: ${{ github.event.inputs.env == 'production' && 'https://cli.flex.ai/install.sh' || 'https://cli.staging.flexsystems.ai/install.sh' }}
+
 jobs:
   pre_test:
     runs-on: ubuntu-latest
@@ -43,10 +55,14 @@ jobs:
   fcs_experiments_prepare:
     runs-on: ubuntu-latest
 
+    permissions:
+      id-token: write
+      contents: read
     outputs:
       test_file_names: ${{ steps.test_file_names.outputs.test_file_names }}
 
     steps:
+
     - name: Define test files
       id: test_file_names
       run: |
@@ -57,7 +73,35 @@ jobs:
           echo 'test_file_names=[' ${common_tests} ', "gpt2-2x1.sh", "gpt2-streaming-1x1-lite.sh", "llama31-1x1.sh", "text-to-image-lora-SDXL-1x1.sh", "text-to-speech-1x1.sh" ]' >> "$GITHUB_OUTPUT"
         fi
 
-  e2e_tests:
+    - name: Download flexai
+      run: |
+        curl -fsSL ${{ env.FLEXAI_CLI_URL }} | sh
+
+    - name: Add ~/.flexai/bin to $PATH
+      run: |
+        echo "/home/runner/.flexai/bin" >> $GITHUB_PATH
+
+    - name: Inject inputs into ~/.flexai/config
+      run: |
+        set +x
+        echo "access-token: ${{ github.event.inputs.access-token }}" >> /home/runner/.flexai/config.yaml
+        echo "refresh-token: ${{ github.event.inputs.refresh-token }}" >> /home/runner/.flexai/config.yaml
+
+    - name: Save binary and config as artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: flexai-artifacts
+        path: |
+          /home/runner/.flexai/bin/
+          /home/runner/.flexai/config.yaml
+
+    - name: Set executable permissions for flexai binary
+      run: chmod +x /home/runner/.flexai/bin/flexai
+
+    - name: Run check flexai doctor
+      run: flexai doctor
+
+  e2e_tests_basic:
     runs-on: ubuntu-latest
     timeout-minutes: 60 # Not too small, training is fast, but compilation takes time and test jobs can be queued for a while
     needs: [pre_test, fcs_experiments_prepare]
@@ -68,35 +112,85 @@ jobs:
       fail-fast: false
       matrix:
         test_file_name: ${{ fromJSON(needs.fcs_experiments_prepare.outputs.test_file_names) }}
+    if: ${{ github.event.inputs.basic == 'true' }}
 
     steps:
+    - name: Download setup artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: flexai-artifacts
+        path: /home/runner/.flexai
+
+    - name: Set executable permissions for flexai binary
+      run: chmod +x /home/runner/.flexai/bin/flexai
+
+    - name: Add flexai binary to PATH
+      run: echo "/home/runner/.flexai/bin" >> $GITHUB_PATH
+
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Download flexai
+    - name: Set source
       run: |
-        if [ "${{ github.event.inputs.env }}" == "prod" ]; then
-            curl -fsSL https://cli.flex.ai/install.sh | sh
-        else
-            curl -fsSL https://cli.staging.flexsystems.ai/install.sh | sh
-        fi
         echo "SOURCE=https://github.com/flexaihq/fcs-experiments-private.git" >> $GITHUB_ENV
-
-    - name: Add ~/.flexai/bin to $PATH
-      run: |
-        echo "$HOME/.flexai/bin" >> $GITHUB_PATH
-
-    - name: Run check flexai doctor
-      run: flexai doctor
-
-    - name: Inject inputs into ~/.flexai/config
-      run: |
-        set +x
-        echo "access-token: ${{ github.event.inputs.access-token }}" >> $HOME/.flexai/config.yaml
-        echo "refresh-token: ${{ github.event.inputs.refresh-token }}" >> $HOME/.flexai/config.yaml
 
     - name: Run ${{ matrix.test_file_name }}
       run: |
         export TRAINING_SUFFIX=${{ needs.pre_test.outputs.rnd_id }}-${{ github.run_number }}-${{ github.run_attempt }}
         export TRAINING_REVISION=${{ github.event.inputs.revision }}
         bash ci/e2e_tests/${{ matrix.test_file_name }}
+
+  e2e_tests_hf_connector:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60 # Not too small, training is fast, but compilation takes time and test jobs can be queued for a while
+    needs: [pre_test, fcs_experiments_prepare]
+    permissions:
+      id-token: write
+      contents: read
+    if: ${{ github.event.inputs.hf-connector == 'true' }}
+    env:
+      TRAINING_NAME: hf-connector-e2e-${{ github.run_number }}-${{ github.run_attempt }}
+      DATASET_NAME: ci-hf-connector-e2e-${{ github.run_number }}-${{ github.run_attempt }}
+      CHECKPOINT_NAME: ci-hf-connector-e2e-${{ github.run_number }}-${{ github.run_attempt }}
+
+    steps:
+    - name: Download setup artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: flexai-artifacts
+        path: /home/runner/.flexai
+
+    - name: Set executable permissions for flexai binary
+      run: chmod +x /home/runner/.flexai/bin/flexai
+
+    - name: Add flexai binary to PATH
+      run: echo "/home/runner/.flexai/bin" >> $GITHUB_PATH
+
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set source
+      run: |
+        echo "SOURCE=https://github.com/flexaihq/fcs-experiments-private.git" >> $GITHUB_ENV
+
+    - name: Push wikitext dataset
+      run: |
+        flexai -v dataset push $DATASET_NAME --storage-provider CI-HF-STORAGE --source-path wikitext
+        ci/wait_for_dataset.sh $DATASET_NAME
+
+    - name: Push checkpoint
+      run: |
+        flexai -v checkpoint push $CHECKPOINT_NAME --storage-provider CI-HF-STORAGE --source-path openai-community/gpt2
+        ci/wait_for_checkpoint.sh $CHECKPOINT_NAME
+
+    - name: Run HF connector
+      run: |
+        export TRAINING_REVISION=${{ github.event.inputs.revision }}
+        bash ci/e2e_tests/gpt2-1x1-hf-connector.sh
+
+    - name: Cleanup
+      if: always()
+      run: |
+        flexai -v dataset delete $DATASET_NAME
+        flexai -v checkpoint delete $CHECKPOINT_NAME
+        flexai -v training delete $TRAINING_NAME
