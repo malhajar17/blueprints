@@ -21,6 +21,17 @@ Before running the E2E tests, ensure the following:
 
    This command executes the script located at `ci/dev/trigger_gh_workflow.sh` to trigger the GitHub workflow for the E2E tests.
 
+## Running a single test directly
+
+When developing or debugging the tests, it may be useful to run a single test directly without using the CI workflows.
+Using this method, the test will run on `staging` or `production` depending on which flexai CLI is configured locally. The test won't appear in any CI jobs.
+
+To execute a test directly a simple trampoline is provided, for example:
+
+```bash
+./ci/local_exec ./ci/e2e_tests/gpt2-1x1.sh
+```
+
 ## Details
 
 1. The script sets up the following variables:
