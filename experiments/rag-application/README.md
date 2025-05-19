@@ -2,7 +2,7 @@
 
 ## Start the FCS endpoints
 
-Create the FCS secret that contains your HF token in order to acces the inference models:
+Create the FCS secret that contains your HF token in order to access the inference models:
 
 ```bash
 # Enter your HF token value when prompted
@@ -32,6 +32,10 @@ export EMBEDDINGS_URL=$(flexai inference inspect $EMBED_INFERENCE_NAME -j | jq .
 ```
 
 ##  Run the RAG application
+
+```bash
+python code/rag/run_rag.py
+```
 
 ##  LangSmith
 
