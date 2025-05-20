@@ -2,13 +2,8 @@ accelerate==1.0.1
 bitsandbytes==0.43.2
 datasets>=2.21.0
 diffusers>=0.30.3
-docx2txt>=0.9
 huggingface-hub>=0.24.6
 jiwer>=3.0.4
-langchain-community>=0.3.23
-langchain-openai>=0.3.16
-langchain-text-splitters>=0.3.8
-langgraph>=0.4.1
 parler-tts @ git+https://github.com/huggingface/parler-tts.git@5d0aca9753ab74ded179732f5bd797f7a8c6f8ee
 peft>=0.12.0
 pre-commit>=3.8.0
