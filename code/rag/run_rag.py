@@ -25,7 +25,7 @@ def add_message(history, message, thread_id):
         bot_message = response["messages"][-1].content
         history.append({"role": "assistant", "content": bot_message})
 
-    return history, gr.Textbox(value=None, interactive=False)
+    return history, ""
 
 
 def add_document(new_docs, doc_list):
@@ -34,19 +34,32 @@ def add_document(new_docs, doc_list):
     return doc_list, gr.Dataset(sample_labels=doc_list, type="values")
 
 
-with gr.Blocks(title="🤖 FlexBot: Ask me anything! 🤖") as demo:
+css = """
+footer { visibility: hidden; }
+.gradio-container { background: #333333; background: linear-gradient(90deg,rgba(51, 51, 51, 1) 0%, rgba(122, 72, 72, 1) 50%, rgba(24, 47, 133, 1) 100%); }
+h1,h2 { color: white; }
+#filetable { button { color: black; background-color: white; } }
+"""
+
+with gr.Blocks(
+    title="FlexBot: Ask me anything!",
+    fill_height=True,
+    css=css,
+    theme=gr.themes.Default(primary_hue=gr.themes.colors.red),
+) as demo:
     uuid_state = gr.State(value=str(uuid4()))
     doc_list = gr.State(value=[])
-
     title = """
-    <center>
-    <h1>🤖 FlexBot: Ask me anything! 🤖</h1>
-    </center>
-    <h2>FlexBot can answer questions based on the provided documents.</h2>
+    <div style="display: flex; align-items: center; justify-content: space-between;">
+        <div>
+            <h1>🤖 FlexBot: Ask me anything! 🤖</h1>
+            <h2 style="margin: 0;">FlexBot can answer questions based on the provided documents.</h2>
+        </div>
+        <img src="/gradio_api/file=code/rag/logo.png" alt="Logo" style="height: 80px; margin-left: 20px;">
+    </div>
     """
-    with gr.Row():
-        gr.HTML(title)
-    chatbot = gr.Chatbot(elem_id="chatbot", type="messages")
+    gr.HTML(title)
+    chatbot = gr.Chatbot(elem_id="chatbot", type="messages", scale=1)
     chat_input = gr.Textbox(
         interactive=True,
         placeholder="Ask me anything!",
@@ -54,15 +67,12 @@ with gr.Blocks(title="🤖 FlexBot: Ask me anything! 🤖") as demo:
         submit_btn=True,
     )
 
-    gr.Markdown("")
-    gr.Markdown("")
-    gr.Markdown("")
-    gr.Markdown("## RAG documents")
     with gr.Row():
         file_table = gr.Examples(
             [],
             doc_list,
-            label="Knowledge base content",
+            label="Knowledge base content (RAG documents)",
+            elem_id="filetable",
         )
     with gr.Row():
         with gr.Column(scale=2):
@@ -93,6 +103,5 @@ with gr.Blocks(title="🤖 FlexBot: Ask me anything! 🤖") as demo:
     )
     clear_doc_button.click(clear_document_list, outputs=[doc_list, file_table.dataset])
 
-
 if __name__ == "__main__":
-    demo.launch()
+    demo.launch(allowed_paths=["code/rag/logo.png"], favicon_path="code/rag/logo.png")
