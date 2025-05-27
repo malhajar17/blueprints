@@ -12,6 +12,7 @@ RUN pip install --no-cache-dir --upgrade pip && pip install --no-cache-dir -r re
 # Copy the application code
 COPY src/ ./src/
 COPY run_rag.py ./run_rag.py
+COPY logo.png ./logo.png
 
 # Expose the port the app runs on
 EXPOSE 7860

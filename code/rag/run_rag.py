@@ -1,7 +1,11 @@
+import os
 from uuid import uuid4
 
 import gradio as gr
 from src.rag_pipeline import RagPipeline
+
+current_dir = os.path.dirname(os.path.abspath(__file__))
+logo_path = os.path.join(current_dir, "logo.png")
 
 rag_pipeline = RagPipeline(chunk_size=500, chunk_overlap=50, use_tools=False)
 
@@ -49,13 +53,13 @@ with gr.Blocks(
 ) as demo:
     uuid_state = gr.State(value=str(uuid4()))
     doc_list = gr.State(value=[])
-    title = """
+    title = f"""
     <div style="display: flex; align-items: center; justify-content: space-between;">
         <div>
             <h1>🤖 FlexBot: Ask me anything! 🤖</h1>
             <h2 style="margin: 0;">FlexBot can answer questions based on the provided documents.</h2>
         </div>
-        <img src="/gradio_api/file=code/rag/logo.png" alt="Logo" style="height: 80px; margin-left: 20px;">
+        <img src="/gradio_api/file={logo_path}" alt="Logo" style="height: 80px; margin-left: 20px;">
     </div>
     """
     gr.HTML(title)
@@ -104,4 +108,4 @@ with gr.Blocks(
     clear_doc_button.click(clear_document_list, outputs=[doc_list, file_table.dataset])
 
 if __name__ == "__main__":
-    demo.launch(allowed_paths=["code/rag/logo.png"], favicon_path="code/rag/logo.png")
+    demo.launch(allowed_paths=[logo_path], favicon_path=logo_path)
