@@ -12,7 +12,6 @@ rag_pipeline = RagPipeline(chunk_size=500, chunk_overlap=50, use_tools=False)
 
 def clear_history():
     new_id = uuid4()
-    rag_pipeline.clear_vector_store()
     print(f"New thread_id: {new_id}")
     return str(new_id), None
 

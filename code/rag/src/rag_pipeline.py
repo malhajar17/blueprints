@@ -67,6 +67,9 @@ class RagPipeline:
         # parse documents into chunks
         loader = MixedFileTypeLoader(file_paths)
         docs = loader.load()
+        for doc in docs:
+            # only keep document filename
+            doc.metadata["source"] = os.path.basename(doc.metadata["source"])
         text_splitter = RecursiveCharacterTextSplitter(
             chunk_size=self.chunk_size, chunk_overlap=self.chunk_overlap
         )
@@ -131,10 +134,21 @@ class RagPipeline:
         return prompt
 
     def _serialize_docs(self, docs: List[Document]) -> str:
-        """Serialize documents for display."""
-        return "\n\n".join(
-            (f"Source: {doc.metadata}\n" f"Content: {doc.page_content}") for doc in docs
-        )
+        """Serialize documents."""
+        serialized_docs = []
+        for doc in docs:
+            if "source" in doc.metadata:
+                # remove "source" key from metadata and display it first
+                src_string = doc.metadata.pop("source")
+                if doc.metadata:
+                    src_string += f" {doc.metadata}"
+            else:
+                src_string = str(doc.metadata)
+            serialized_docs.append(
+                f"Source: {src_string}\n" f"Content: {doc.page_content}"
+            )
+
+        return "\n\n".join(serialized_docs)
 
     def _set_graph(self) -> None:
         if self.use_tools:
