@@ -59,6 +59,14 @@ class RagPipeline:
         self.vector_store: InMemoryVectorStore
         self.prompt: PromptTemplate
         self.graph: StateGraph
+        self.llm_model_name: str
+        self.llm_api_key: str
+        self.llm_url: str
+        self.embeddings_model_name: str
+        self.embeddings_api_key: str
+        self.embeddings_url: str
+
+        self._set_endpoint_config()
         self._set_models()
         self._set_vector_store()
         self._set_graph()
@@ -94,23 +102,57 @@ class RagPipeline:
                 "Please set the EMBEDDINGS_MODEL_NAME environment variable."
             )
 
-    def _set_models(self) -> None:
-        self._check_env()
+    def get_endpoint_config(self) -> dict:
+        return {
+            "llm_model_name": self.llm_model_name,
+            "llm_api_key": self.llm_api_key,
+            "llm_url": self.llm_url,
+            "embeddings_model_name": self.embeddings_model_name,
+            "embeddings_api_key": self.embeddings_api_key,
+            "embeddings_url": self.embeddings_url,
+        }
 
-        config = AutoConfig.from_pretrained(os.getenv("EMBEDDINGS_MODEL_NAME"))
+    def set_endpoint_config(self, config: dict) -> None:
+        for key, value in config.items():
+            if key not in [
+                "llm_model_name",
+                "llm_api_key",
+                "llm_url",
+                "embeddings_model_name",
+                "embeddings_api_key",
+                "embeddings_url",
+            ]:
+                raise ValueError(f"Invalid config key: {key}")
+            setattr(self, key, value)
+        self._set_models()
+        self._set_vector_store()
+
+    def _set_endpoint_config(
+        self,
+    ) -> None:
+        self._check_env()
+        self.llm_model_name = os.getenv("LLM_MODEL_NAME")
+        self.llm_api_key = os.getenv("LLM_API_KEY")
+        self.llm_url = os.getenv("LLM_URL")
+        self.embeddings_model_name = os.getenv("EMBEDDINGS_MODEL_NAME")
+        self.embeddings_api_key = os.getenv("EMBEDDINGS_API_KEY")
+        self.embeddings_url = os.getenv("EMBEDDINGS_URL")
+
+    def _set_models(self) -> None:
+        config = AutoConfig.from_pretrained(self.embeddings_model_name)
         assert self.chunk_size <= config.max_position_embeddings
 
         llm = ChatOpenAI(
-            model_name=os.getenv("LLM_MODEL_NAME"),
-            openai_api_key=os.getenv("LLM_API_KEY"),
-            openai_api_base=os.getenv("LLM_URL") + "/v1",
+            model_name=self.llm_model_name,
+            openai_api_key=self.llm_api_key,
+            openai_api_base=self.llm_url + "/v1",
         )
 
         embeddings = OpenAIEmbeddings(
-            model=os.getenv("EMBEDDINGS_MODEL_NAME"),
-            deployment=os.getenv("EMBEDDINGS_MODEL_NAME"),
-            openai_api_key=os.getenv("EMBEDDINGS_API_KEY"),
-            openai_api_base=os.getenv("EMBEDDINGS_URL") + "/v1",
+            model=self.embeddings_model_name,
+            deployment=self.embeddings_model_name,
+            openai_api_key=self.embeddings_api_key,
+            openai_api_base=self.embeddings_url + "/v1",
             tiktoken_enabled=False,
         )
         self.llm = llm

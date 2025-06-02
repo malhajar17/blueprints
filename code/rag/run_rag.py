@@ -10,6 +10,56 @@ logo_path = os.path.join(current_dir, "logo.png")
 rag_pipeline = RagPipeline(chunk_size=500, chunk_overlap=50, use_tools=False)
 
 
+def get_endpoint_config():
+    config = rag_pipeline.get_endpoint_config()
+    return [
+        config.get("llm_model_name", ""),
+        config.get("llm_api_key", ""),
+        config.get("llm_url", ""),
+        config.get("embeddings_model_name", ""),
+        config.get("embeddings_api_key", ""),
+        config.get("embeddings_url", ""),
+    ]
+
+
+def set_endpoint_config(
+    llm_model_name,
+    llm_api_key,
+    llm_url,
+    embeddings_model_name,
+    embeddings_api_key,
+    embeddings_url,
+):
+    config = {
+        "llm_model_name": llm_model_name,
+        "llm_api_key": llm_api_key,
+        "llm_url": llm_url,
+        "embeddings_model_name": embeddings_model_name,
+        "embeddings_api_key": embeddings_api_key,
+        "embeddings_url": embeddings_url,
+    }
+    try:
+        rag_pipeline.set_endpoint_config(config)
+        error_msg = ""
+        error_visible = False
+    except Exception as e:
+        error_msg = f"<span style='color:red; font-weight:bold;'>Error: {e}</span>"
+        error_visible = True
+    config_values = get_endpoint_config()
+    doc_list, file_table = clear_document_list()
+    return (
+        *config_values,
+        doc_list,
+        file_table,
+        gr.update(value=error_msg, visible=error_visible),
+    )
+
+
+def toggle_api_key_visibility(visible, value):
+    type = "text" if visible else "password"
+    return gr.Textbox(label="API Key", type=type, value=value)
+
+
 def clear_history():
     new_id = uuid4()
     print(f"New thread_id: {new_id}")
@@ -95,6 +145,84 @@ with gr.Blocks(
         with gr.Column(scale=1):
             clear_doc_button = gr.ClearButton(value="Clear all documents")
 
+    with gr.Accordion("Endpoint Configuration", open=False):
+        llm_model_name = gr.Textbox(label="LLM Model Name")
+        llm_url = gr.Textbox(label="LLM URL")
+        with gr.Row():
+            llm_api_key = gr.Textbox(
+                placeholder="LLM API Key",
+                type="password",
+                scale=4,
+                show_label=False,
+            )
+            llm_api_key_visible = gr.Checkbox(
+                label="Show LLM API Key",
+                value=False,
+                scale=1,
+            )
+        embeddings_model_name = gr.Textbox(label="Embeddings Model Name")
+        embeddings_url = gr.Textbox(label="Embeddings URL")
+        with gr.Row():
+            embeddings_api_key = gr.Textbox(
+                label="Embeddings API Key",
+                type="password",
+                scale=4,
+                show_label=False,
+            )
+            embeddings_api_key_visible = gr.Checkbox(
+                label="Show Embeddings API Key",
+                value=False,
+                scale=1,
+            )
+        save_btn = gr.Button("Save")
+        config_error = gr.Markdown(value="", visible=False)
+
+    # Prefill on load
+    demo.load(
+        get_endpoint_config,
+        inputs=None,
+        outputs=[
+            llm_model_name,
+            llm_api_key,
+            llm_url,
+            embeddings_model_name,
+            embeddings_api_key,
+            embeddings_url,
+        ],
+    )
+
+    save_btn.click(
+        set_endpoint_config,
+        inputs=[
+            llm_model_name,
+            llm_api_key,
+            llm_url,
+            embeddings_model_name,
+            embeddings_api_key,
+            embeddings_url,
+        ],
+        outputs=[
+            llm_model_name,
+            llm_api_key,
+            llm_url,
+            embeddings_model_name,
+            embeddings_api_key,
+            embeddings_url,
+            doc_list,
+            file_table.dataset,
+            config_error,
+        ],
+    )
+    llm_api_key_visible.change(
+        toggle_api_key_visibility,
+        inputs=[llm_api_key_visible, llm_api_key],
+        outputs=llm_api_key,
+    )
+    embeddings_api_key_visible.change(
+        toggle_api_key_visibility,
+        inputs=[embeddings_api_key_visible, embeddings_api_key],
+        outputs=embeddings_api_key,
+    )
     chatbot.clear(clear_history, outputs=[uuid_state, chatbot])
 
     chat_msg = chat_input.submit(
