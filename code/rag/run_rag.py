@@ -195,6 +195,16 @@ with gr.Blocks(
             embeddings_url,
         ],
     )
+    demo.load(
+        clear_document_list,
+        inputs=None,
+        outputs=[doc_list, file_table.dataset],
+    )
+    demo.load(
+        clear_history,
+        inputs=None,
+        outputs=[uuid_state, chatbot],
+    )
 
     save_btn.click(
         set_endpoint_config,
