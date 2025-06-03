@@ -74,8 +74,13 @@ def clear_document_list():
 def add_message(history, message, thread_id):
     if message:
         history.append({"role": "user", "content": message})
-        response = rag_pipeline.query(message, thread_id=thread_id)
-        bot_message = response["messages"][-1].content
+        try:
+            response = rag_pipeline.query(message, thread_id=thread_id)
+            bot_message = response["messages"][-1].content
+        except Exception as e:
+            bot_message = (
+                f"<span style='color:red; font-weight:bold;'>Error: {e}</span>"
+            )
         history.append({"role": "assistant", "content": bot_message})
 
     return history, ""
