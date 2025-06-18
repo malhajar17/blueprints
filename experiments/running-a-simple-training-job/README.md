@@ -31,7 +31,7 @@ Now, it's time to train your LLM on the dataset you just _pushed_ in the previou
 To start the Training Job, run the following command:
 
 ```bash
-flexai training run fcs-experiments-simple -u https://github.com/flexaihq/fcs-experiments --dataset gpt2-tokenized-wikitext \
+flexai training run fcs-experiments-simple --repository-url https://github.com/flexaihq/fcs-experiments --dataset gpt2-tokenized-wikitext \
  -- code/causal-language-modeling/train.py \
     --do_eval \
     --do_train \

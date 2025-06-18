@@ -28,7 +28,7 @@ flexai dataset push sdxl-tokenized-naruto --file sdxl-tokenized-naruto
 To start the Training Job, run the following command:
 
 ```bash
-flexai training run text-to-image-lora-SDXL-training-ddp -u https://github.com/flexaihq/fcs-experiments --dataset sdxl-tokenized-naruto --secret HF_TOKEN=<HF_AUTH_TOKEN_SECRET_NAME> --secret WANDB_API_KEY=<WANDB_API_KEY_SECRET_NAME> \
+flexai training run text-to-image-lora-SDXL-training-ddp --repository-url https://github.com/flexaihq/fcs-experiments --dataset sdxl-tokenized-naruto --secret HF_TOKEN=<HF_AUTH_TOKEN_SECRET_NAME> --secret WANDB_API_KEY=<WANDB_API_KEY_SECRET_NAME> \
   --nodes 1 --accels 2 \
   -- code/diffuser/train_text_to_image_lora_sdxl.py \
     --pretrained_model_name_or_path stabilityai/stable-diffusion-xl-base-1.0 \
