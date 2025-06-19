@@ -1,7 +1,0 @@
-#!/usr/bin/env bash
-
-# remove 6 chars from uuid, cause name can only be 64chars long.
-export TRAINING_SUFFIX="local-$(uuid | head -c 30)"
-export SOURCE=https://github.com/flexaihq/fcs-experiments-private.git
-export TRAINING_REVISION=main
-exec "$@"
