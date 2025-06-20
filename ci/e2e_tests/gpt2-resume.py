@@ -19,14 +19,14 @@ def main():
     if args.clean:
         clean()
 
-    prepare()
+    checkpoint_id = prepare()
 
     training_name = tools.gen_training_name()
 
     tools.training_run(
         name=training_name,
         dataset="ci-gpt2-tokenized-wikitext",
-        input_checkpoint=checkpoint_name,
+        input_checkpoint=checkpoint_id,
         repository_url="https://github.com/flexaihq/fcs-experiments-private.git",
         repository_revision=os.getenv("TRAINING_REVISION", "main"),
         entry_point="code/causal-language-modeling/train.py",
@@ -92,10 +92,6 @@ def prepare():
 
     print("Preparing the test environment...")
 
-    if tools.checkpoint_exists(checkpoint_name):
-        print(f"Checkpoint '{checkpoint_name}' already exists. Skipping upload.")
-        return
-
     training_name = tools.gen_training_name("gpt2-1x1-upload-e2e")
 
     tools.training_run(
@@ -136,11 +132,8 @@ def prepare():
     if checkpoint_id is None:
         raise RuntimeError("No checkpoint with optimizer.pt found in the training run.")
 
-    checkpoint = tools.Checkpoint(item["id"])
-    with checkpoint.fetch() as directory:
-        tools.checkpoint_push(checkpoint_name, path=directory)
-
-    print("Preparation done successfully!")
+    print(f"Preparation done successfully: checkpoint id: {checkpoint_id}!")
+    return checkpoint_id
 
 
 if __name__ == "__main__":
