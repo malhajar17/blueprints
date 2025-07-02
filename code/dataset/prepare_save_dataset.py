@@ -1,6 +1,6 @@
 # Copyright (c) 2025 FlexAI
 # This file is part of the FlexAI Experiments repository.
-# SPDX-License-Identifier: Apache-2.0
+# SPDX-License-Identifier: MIT
 
 from dataclasses import dataclass, field
 from functools import partial
