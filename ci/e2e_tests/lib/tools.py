@@ -48,6 +48,8 @@ def setup(*options: Callable[[argparse.ArgumentParser], None]) -> argparse.Names
 
     parser.add_argument("--dry-run", action="store_true", help="Enable dry run mode")
 
+    parser.add_argument("-r", "--runtime", help="Set the runtime to use")
+
     for option in options:
         option(parser)
 
@@ -59,6 +61,8 @@ def setup(*options: Callable[[argparse.ArgumentParser], None]) -> argparse.Names
         cli.binary = args.binary
     if args.dry_run:
         cli.dry_run = True
+    if args.runtime:
+        cli.runtime = args.runtime
     return args
 
 

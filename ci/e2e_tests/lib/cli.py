@@ -10,6 +10,8 @@ verbose = False
 
 dry_run = False
 
+runtime = None
+
 
 class CliError(RuntimeError):
     """
@@ -124,6 +126,8 @@ def training_run(
         flags.append(f"--repository-url={repository_url}")
         if repository_revision is not None:
             flags.append(f"--repository-revision={repository_revision}")
+    if runtime is not None and runtime != "":
+        flags.append(f"--runtime={runtime}")
     if env is not None:
         for key, value in env.items():
             flags.append(f"--env={key}={value}")
