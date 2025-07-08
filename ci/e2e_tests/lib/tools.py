@@ -3,6 +3,7 @@ import os
 import random
 import shutil
 import string
+import sys
 import tempfile
 import time
 from contextlib import contextmanager
@@ -152,7 +153,9 @@ def training_run(
         if e.status == "failed":
             try:
                 logs = TrainingLogs.fetch(training_name=name)
-                logs.dump()
+                # On CI, stderr and stdout can be interleaved, so we dump logs to stderr
+                # to keep the output ordered and clean.
+                logs.dump(file=sys.stderr)
             except BaseException:
                 # If fetching logs fails, to not throw here. Print an error message
                 print(f"Failed to fetch logs for training '{name}'")
@@ -374,16 +377,16 @@ class TrainingLogs:
         obj._logs = cli.training_logs(name=training_name)
         return obj
 
-    def dump(self) -> None:
+    def dump(self, file=sys.stdout) -> None:
         """
         Dump the training logs to a file.
 
         Args:
             file (str): The file path to dump the logs.
         """
-        print("=== TRAINING LOGS ===")
-        print(self._logs)
-        print("=====================")
+        print("=== TRAINING LOGS ===", file=file)
+        print(self._logs, file=file)
+        print("=====================", file=file)
 
     def assert_contains(self, *phrases: str | Not) -> None:
         """

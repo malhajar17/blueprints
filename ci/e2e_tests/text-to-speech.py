@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import os
+import sys
 
 from lib import cli, tools
 
@@ -121,7 +122,7 @@ def main():
             len(checkpoints) == expected_checkpoint_counts
         ), f"Expected {expected_checkpoint_counts} checkpoints, got {len(checkpoints)}"
 
-        # We have one checkpoint-15 without config.json, and with a pytorch_model.bin
+        # We have multiple checkpoints without config.json, and with a pytorch_model.bin
         # And one final checkpoint with config.json, and a model.safetensors
         for item in checkpoints:
             checkpoint = tools.Checkpoint(item["id"])
@@ -133,7 +134,7 @@ def main():
         print("Training done successfully!")
 
     except:
-        logs.dump()
+        logs.dump(file=sys.stderr)
         raise
 
 

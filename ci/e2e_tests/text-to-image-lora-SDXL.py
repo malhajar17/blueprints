@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import os
+import sys
 
 from lib import cli, tools
 
@@ -77,7 +78,9 @@ def main():
         print("Training done successfully!")
 
     except:
-        logs.dump()
+        # On CI, stderr and stdout can be interleaved, so we dump logs to stderr
+        # to keep the output ordered and clean.
+        logs.dump(file=sys.stderr)
         raise
 
 
