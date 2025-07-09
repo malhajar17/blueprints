@@ -1,11 +1,17 @@
-# Description: This script is used to trigger the GitHub workflow for the E2E tests.
+#!/bin/bash
+# Description: This script is used to trigger the ML E2E test GitHub workflow of the infra repo.
 # Before you run this script, make sure you have a fresh FCS token:
 # flexai auth login
-# Here the tests are executed on staging environment and on the main branch.
-REVISION=main
-ACCESS_TOKEN=$(cat ~/.flexai/config.yaml | grep access-token: | cut -d " " -f2)
-REFRESH_TOKEN=$(cat ~/.flexai/config.yaml | grep refresh-token: | cut -d " " -f2)
-ENV=staging
 
-gh workflow run flexai_e2e_tests.yml --ref $REVISION -f revision=$REVISION -f access-token=$ACCESS_TOKEN -f refresh-token=$REFRESH_TOKEN -f env=$ENV
-echo "\nView workflow run at:https://github.com/flexaihq/fcs-experiments-private/actions/workflows/flexai_e2e_tests.yml"
+FCS_EXPERIMENTS_REV=${FCS_EXPERIMENTS_REV:-main}
+ENV=${ENV:-staging}
+INFRA_WORKFLOW_REV=${INFRA_WORKFLOW_REV:-main}
+
+INFRA_PATH=$(realpath "$(dirname "$0")/../../../infra")
+if [ ! -d "$INFRA_PATH" ]; then
+    echo "The infra repository is not found at the expected path: $INFRA_PATH"
+    echo "Please ensure that the infra repository is cloned at the same directory level as this project."
+    exit 1
+fi
+
+(cd "$INFRA_PATH" && ./scripts/run_e2e_ml.py --rev $INFRA_WORKFLOW_REV --fcs-private-experiments-rev $FCS_EXPERIMENTS_REV --env $ENV)

@@ -3,20 +3,10 @@
 lint:
 	pre-commit run --all-files
 
-# run e2e tests locally using act
-.PHONY: local-e2e
-local-e2e:
-	./ci/dev/run_local_act.sh
-
 # run e2e tests triggering GH actions
 .PHONY: e2e
 e2e:
-	./ci/dev/trigger_gh_workflow.sh
-
-# push ci datasets
-.PHONY: push-ci-datasets
-push-ci-datasets:
-	./ci/dev/push-ci-datasets.sh
+	FCS_EXPERIMENTS_REV=$(FCS_EXPERIMENTS_REV) ENV=$(ENV) INFRA_WORKFLOW_REV=$(INFRA_WORKFLOW_REV) ./ci/dev/trigger_gh_workflow.sh
 
 # diff with specified branch without test related files
 .PHONY: diff-branch
@@ -26,3 +16,8 @@ diff-branch:
 		exit 1; \
 	fi
 	git diff $(b) -- ":(exclude).github/*" ":(exclude)Makefile" ":(exclude)REAME-e2e.md" ":(exclude).pre-commit*" ":(exclude)ci/*"
+
+# Default values for e2e
+FCS_EXPERIMENTS_REV ?= main
+ENV ?= staging
+INFRA_WORKFLOW_REV ?= main

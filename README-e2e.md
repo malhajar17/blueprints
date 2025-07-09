@@ -13,13 +13,17 @@ Before running the E2E tests, ensure the following:
    flexai auth login
    ```
 
+   - Ensure that valid tokens are present in `~/.flexai/config.yaml`.
+
+1. Ensure that the `infra` repository is cloned at the same directory level as this project, so it is accessible at `../infra`.
+
 1. Use the following `make` command to trigger the E2E tests:
 
    ```bash
-   make e2e
+   make e2e FCS_EXPERIMENTS_REV=my-fcs-rev-containing-e2e ENV=staging
    ```
 
-   This command executes the script located at `ci/dev/trigger_gh_workflow.sh` to trigger the GitHub workflow for the E2E tests.
+   This command trigger the ML e2e GitHub workflow (infra repo) with the tests from this repo revision `my-fcs-rev-containing-e2e` on staging env.
 
 ## Running a single test directly
 
@@ -29,32 +33,5 @@ Using this method, the test will run on `staging` or `production` depending on w
 To execute a test directly a simple trampoline is provided, for example:
 
 ```bash
-./ci/local_exec ./ci/e2e_tests/gpt2-1x1.sh
+./ci/e2e_tests/gpt2-simple.py
 ```
-
-## Details
-
-1. The script sets up the following variables:
-   - **REVISION**: The branch to test, default is `main`.
-   - **ACCESS_TOKEN**: Extracted from `~/.flexai/config.yaml`.
-   - **REFRESH_TOKEN**: Extracted from `~/.flexai/config.yaml`.
-   - **ENV**: The target environment, default is `staging`.
-
-1. Finally, the script uses these variables to run the GitHub workflow:
-
-## Editing the Script
-
-You can modify the script `ci/dev/trigger_gh_workflow.sh` to customize its behavior:
-
-1. **Branch Selection**:
-   - Change the `REVISION` variable to specify a different branch.
-
-2. **Environment**:
-   - Update the `ENV` variable to target a different environment (e.g., `production`).
-
-3. **Access Tokens**:
-   - Ensure that valid tokens are present in `~/.flexai/config.yaml`.
-
-## Notes
-
-- If you encounter issues with tokens or authentication, re-run `flexai auth login` to refresh your credentials.
