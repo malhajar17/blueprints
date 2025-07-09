@@ -117,7 +117,10 @@ def main():
 
         checkpoints = cli.training_list_checkpoints(name=training_name)
 
+        # Staging: checkpoint-15, checkpoint-20, final checkpoint
+        # Production: checkpoint-50, checkpoint-99, final checkpoint
         expected_checkpoint_counts = 3
+
         assert (
             len(checkpoints) == expected_checkpoint_counts
         ), f"Expected {expected_checkpoint_counts} checkpoints, got {len(checkpoints)}"
