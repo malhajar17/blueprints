@@ -32,6 +32,7 @@ def main():
         },
         repository_url="https://github.com/flexaihq/fcs-experiments-private.git",
         repository_revision=os.getenv("TRAINING_REVISION", "main"),
+        requirements_path="code/diffuser/requirements.txt",
         entry_point="code/diffuser/train_text_to_image_lora_sdxl.py",
         model_args={
             "pretrained_model_name_or_path": "stabilityai/stable-diffusion-xl-base-1.0",

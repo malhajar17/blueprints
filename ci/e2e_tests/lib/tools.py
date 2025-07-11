@@ -98,6 +98,7 @@ def training_run(
     secrets: dict[str, str] = None,
     repository_url: str = None,
     repository_revision: str = None,
+    requirements_path: str = None,
     entry_point: str,
     model_args: dict[str, str] = {},
     wait_timeout: int = 1800,
@@ -121,6 +122,7 @@ def training_run(
         secrets (dict[str, str]): Secrets to set for the training job.
         repository_url (str): The URL of the repository containing the training code.
         repository_revision (str): The revision of the repository to use.
+        requirements_path (str): Path to the requirements file to install dependencies.
         entry_point (str): The entry point script for the training job.
         model_args (dict[str, str]): Additional model arguments.
         wait_timeout (int): The maximum time to wait for the training to complete in seconds. Default is 1800 seconds.
@@ -139,6 +141,7 @@ def training_run(
         secrets=secrets,
         repository_url=repository_url,
         repository_revision=repository_revision,
+        requirements_path=requirements_path,
         entry_point=entry_point,
         model_args=model_args,
     )

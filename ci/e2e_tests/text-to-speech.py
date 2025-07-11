@@ -96,6 +96,7 @@ def main():
         },
         repository_url="https://github.com/flexaihq/fcs-experiments-private.git",
         repository_revision=os.getenv("TRAINING_REVISION", "main"),
+        requirements_path="code/text-to-speech/requirements.txt",
         entry_point="code/text-to-speech/run_parler_tts_training.py",
         model_args=model_args,
     )

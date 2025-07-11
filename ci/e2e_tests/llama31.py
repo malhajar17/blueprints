@@ -51,6 +51,7 @@ def main():
         },
         repository_url="https://github.com/flexaihq/fcs-experiments-private.git",
         repository_revision=os.getenv("TRAINING_REVISION", "main"),
+        requirements_path="code/causal-language-modeling-qlora/requirements.txt",
         entry_point="code/causal-language-modeling-qlora/train.py",
         model_args=model_args,
     )

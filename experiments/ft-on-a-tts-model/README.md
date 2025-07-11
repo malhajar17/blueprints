@@ -37,7 +37,7 @@ flexai dataset push text-to-speech-fr --file text-to-speech-fr
 To start the Training Job, run the following command:
 
 ```bash
-flexai training run text-to-speech-ddp --repository-url https://github.com/flexaihq/fcs-experiments --dataset text-to-speech-fr --secret WANDB_API_KEY=<WANDB_API_KEY_SECRET_NAME> \
+flexai training run text-to-speech-ddp --repository-url https://github.com/flexaihq/fcs-experiments --dataset text-to-speech-fr --secret WANDB_API_KEY=<WANDB_API_KEY_SECRET_NAME> --requirements-path code/text-to-speech/requirements.txt \
   --nodes 1 --accels 8 \
   -- code/text-to-speech/run_parler_tts_training.py ./code/text-to-speech/french_training.json
 ```
@@ -45,7 +45,7 @@ flexai training run text-to-speech-ddp --repository-url https://github.com/flexa
 Instead of passing a `.json` file as input, you can also set the arguments manually. For example:
 
 ```bash
-flexai training run text-to-speech-ddp --repository-url https://github.com/flexaihq/fcs-experiments --dataset text-to-speech-fr --secret WANDB_API_KEY=<WANDB_API_KEY_SECRET_NAME> \
+flexai training run text-to-speech-ddp --repository-url https://github.com/flexaihq/fcs-experiments --dataset text-to-speech-fr --secret WANDB_API_KEY=<WANDB_API_KEY_SECRET_NAME> --requirements-path code/text-to-speech/requirements.txt \
   --nodes 1 --accels 8 \
   -- code/text-to-speech/run_parler_tts_training.py \
     --model_name_or_path=parler-tts/parler_tts_mini_v0.1 \
@@ -97,7 +97,7 @@ git clone https://github.com/flexaihq/fcs-experiments.git --depth 1 --branch mai
 Depending on your environment, you might need to install - if not already - the experiments' dependencies by running:
 
 ```bash
-pip install -r requirements.txt
+pip install -r code/text-to-speech/requirements.txt
 ```
 
 #### Dataset preparation

@@ -28,7 +28,7 @@ This will allow FlexAI to pull repositories directly from GitHub using the `-u` 
 Here is an example using the `code/causal-language-modeling/train.py` script to stream the over 90 TB [Fineweb dataset](https://huggingface.co/datasets/HuggingFaceFW/fineweb):
 
 ```bash
-flexai training run gpt2training-stream --repository-url https://github.com/flexaihq/fcs-experiments --dataset empty-dataset \
+flexai training run gpt2training-stream --repository-url https://github.com/flexaihq/fcs-experiments --dataset empty-dataset --requirements-path code/causal-language-modeling/requirements.txt \
    -- code/causal-language-modeling/train.py \
     --dataset_streaming true \
     --do_train \

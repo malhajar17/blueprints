@@ -1,6 +1,10 @@
 # Lints the codebase.
 .PHONY: lint
 lint:
+	@if ! command -v pre-commit >/dev/null 2>&1; then \
+		echo "pre-commit is not installed. Please run: pip install 'pre-commit>=3.8.0'"; \
+		exit 1; \
+	fi
 	pre-commit run --all-files
 
 # run e2e tests triggering GH actions

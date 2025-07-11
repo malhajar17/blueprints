@@ -32,7 +32,7 @@ To start the Training Job, run the following command:
 
 ```bash
 flexai training run fcs-experiments-simple --repository-url https://github.com/flexaihq/fcs-experiments --dataset gpt2-tokenized-wikitext \
- -- code/causal-language-modeling/train.py \
+ -- code/causal-language-modeling/train.py --requirements-path code/causal-language-modeling/requirements.txt \
     --do_eval \
     --do_train \
     --dataset_name wikitext \
@@ -108,7 +108,7 @@ git clone https://github.com/flexaihq/fcs-experiments.git --depth 1 --branch mai
 Depending on your environment, you might need to install - if not already - the experiments' dependencies by running:
 
 ```bash
-pip install -r requirements.txt
+pip install -r code/causal-language-modeling/requirements.txt
 ```
 
 #### 3. Extract the model artifacts

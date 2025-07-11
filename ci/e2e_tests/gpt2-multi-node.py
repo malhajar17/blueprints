@@ -27,6 +27,7 @@ def main():
         dataset="ci-gpt2-tokenized-wikitext",
         repository_url="https://github.com/flexaihq/fcs-experiments-private.git",
         repository_revision=os.getenv("TRAINING_REVISION", "main"),
+        requirements_path="code/causal-language-modeling/requirements.txt",
         entry_point="code/causal-language-modeling/train.py",
         model_args={
             "do_eval": True,

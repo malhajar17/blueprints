@@ -105,6 +105,7 @@ def training_run(
     secrets: dict[str, str] = None,
     repository_url: str = None,
     repository_revision: str = None,
+    requirements_path: str = None,
     entry_point: str,
     model_args: dict[str, str] = {},
 ):
@@ -126,6 +127,8 @@ def training_run(
         flags.append(f"--repository-url={repository_url}")
         if repository_revision is not None:
             flags.append(f"--repository-revision={repository_revision}")
+    if requirements_path is not None:
+        flags.append(f"--requirements-path={requirements_path}")
     if runtime is not None and runtime != "":
         flags.append(f"--runtime={runtime}")
     if env is not None:
@@ -303,7 +306,10 @@ def _raise_refined_training_error(name: str):
     Try to refine the error message for a training, and raise it.
     """
 
-    e = sys.exception()
+    try:
+        e = sys.exception()
+    except AttributeError:
+        e = sys.exc_info()[1]
 
     call_process_error = e.__cause__
 
