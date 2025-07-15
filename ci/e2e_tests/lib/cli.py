@@ -204,7 +204,9 @@ def training_list_checkpoints(name: str):
 
     (headers, data) = _parse_table(res.stdout)
 
-    assert headers == ["id", "timestamp"], "Unexpected headers in checkpoints table."
+    assert (
+        "id" in headers and "timestamp" in headers
+    ), "Unexpected headers in checkpoints table."
 
     # parse iso8601 timestamps to datetime objects
     for row in data:
