@@ -7,7 +7,7 @@ trust_remote_code: true
 stage: sft
 do_train: true
 finetuning_type: freeze
-# deepspeed: code/llama-factory/ds_z3_config.json
+deepspeed: code/llama-factory/ds_z3_config.json
 
 ### dataset
 dataset: identity,alpaca_en_demo

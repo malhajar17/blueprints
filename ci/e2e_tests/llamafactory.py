@@ -14,6 +14,9 @@ def main():
     tools.training_run(
         name=training_name,
         dataset="ci-gpt2-tokenized-wikitext",  # This dataset is not used in this test, but required for now to enable companion (bug to be fixed in infra)
+        env={
+            "FORCE_TORCHRUN": "1",
+        },
         secrets={
             "HF_TOKEN": "GC_HF_TOKEN",
         },
@@ -38,15 +41,35 @@ def main():
             "Total train batch size (w. parallel, distributed & accumulation) = 2",
         )
 
+        # Verifies that the training was run with DeepSpeed ZeRO3
+        logs.assert_contains(
+            "DeepSpeed ZeRO3 detected",
+            "DeepSpeed Final Optimizer = DeepSpeedZeroOptimizer_Stage3",
+        )
+
         print("Fetching checkpoints...")
 
         checkpoints = cli.training_list_checkpoints(name=training_name)
+        checkpoints_len = len(checkpoints)
+        # TODO(@runtime): perfect checkpoint detection for DeepSpeed
+        expected_checkpoints = 5
 
-        assert len(checkpoints) == 3, f"Expected 3 checkpoints, got {len(checkpoints)}"
+        assert (
+            checkpoints_len == expected_checkpoints
+        ), f"Expected {expected_checkpoints} checkpoints, got {checkpoints_len}"
+
+        is_deepspeed_in_ckpt = False
 
         for item in checkpoints:
             checkpoint = tools.Checkpoint(item["id"])
-            checkpoint.assert_exist("model.safetensors")
+
+            if not item["name"].startswith("global_"):
+                checkpoint.assert_exist("model.safetensors")
+
+            if not is_deepspeed_in_ckpt:
+                is_deepspeed_in_ckpt = checkpoint.exists("zero_to_fp32.py")
+
+        assert is_deepspeed_in_ckpt, "Expected a checkpoint with DeepSpeed Zero3"
 
         print("Training done successfully!")
 
