@@ -18,25 +18,78 @@ flexai secret create <HF_AUTH_TOKEN_SECRET_NAME>
 
 Then paste your _HuggingFace Token_ API key value.
 
-## Step 1: Train the Model
+## [Optional] Pre-fetch the Model
 
-> **Note**: The LlamaFactory example is only available on the `llama-factory` branch for now, which explains the `--repository-revision llama-factory` argument below.
+To speed up training and avoid downloading large models at runtime, you can pre-fetch your HuggingFace model to FlexAI storage. For example, to pre-fetch the `Qwen/Qwen2.5-72B` model:
 
-The [`llama3_sft.yaml`](../../code/llama-factory/llama3_sft.yaml) file has been adapted from [this example](https://github.com/hiyouga/LLaMA-Factory/blob/0b188ca00c9de9efee63807e72e444ea74195da5/examples/train_full/llama3_full_sft.yaml#L1).
+1. **Create a HuggingFace storage provider:**
 
-To launch a training job:
+    ```bash
+    flexai storage create HF-STORAGE --provider huggingface --hf-token-name <HF_AUTH_TOKEN_SECRET_NAME>
+    ```
+
+2. **Push the model checkpoint to your storage:**
+
+    ```bash
+    flexai checkpoint push qwen25-72b --storage-provider HF-STORAGE --source-path Qwen/Qwen2.5-72B
+    ```
+
+During your training run, you can use the pre-fetched model by adding the following argument to your training command:
+
+```bash
+--checkpoint qwen25-72b
+```
+
+## Train Llama Qwen2.5-72B (no model prefetch)
+
+The [`qwen25-72B_sft.yaml`](../../code/llama-factory/qwen25-72B_sft.yaml) file has been adapted from [this example](https://github.com/hiyouga/LLaMA-Factory/blob/0b188ca00c9de9efee63807e72e444ea74195da5/examples/train_full/llama3_full_sft.yaml#L1).
+
+To launch the training job:
 
 ```bash
 flexai training run llamafactory-sft-llama3 \
   --repository-url https://github.com/flexaihq/flexai-experiments \
+  --env FORCE_TORCHRUN=1 \
   --secret HF_TOKEN=<HF_AUTH_TOKEN_SECRET_NAME> \
   --requirements-path code/llama-factory/requirements.txt \
-  -- llamafactory-cli train code/llama-factory/llama3_sft.yaml
+  --runtime nvidia-25.06 \
+  -- /layers/flexai_pip-install/packages/bin/llamafactory-cli train code/llama-factory/qwen25-72B_sft.yaml
+```
+
+## Train Llama Qwen2.5-72B (with model prefetch)
+
+To take advantage of model pre-fetching performed in the [Optional: Pre-fetch the Model](#optional-pre-fetch-the-model) section, use:
+
+```bash
+flexai training run llamafactory-sft-llama3 \
+  --repository-url https://github.com/flexaihq/flexai-experiments \
+  --checkpoint qwen25-72b \
+  --env FORCE_TORCHRUN=1 \
+  --secret HF_TOKEN=<HF_AUTH_TOKEN_SECRET_NAME> \
+  --requirements-path code/llama-factory/requirements.txt \
+  --runtime nvidia-25.06 \
+  -- /layers/flexai_pip-install/packages/bin/llamafactory-cli train code/llama-factory/qwen25-prefetched_sft.yaml
+```
+
+## Train Llama 3
+
+The [`llama3_sft.yaml`](../../code/llama-factory/llama3_sft.yaml) file has been adapted from [this example](https://github.com/hiyouga/LLaMA-Factory/blob/0b188ca00c9de9efee63807e72e444ea74195da5/examples/train_full/llama3_full_sft.yaml#L1).
+
+To launch the training job:
+
+```bash
+flexai training run llamafactory-sft-llama3 \
+  --repository-url https://github.com/flexaihq/flexai-experiments \
+  --env FORCE_TORCHRUN=1 \
+  --secret HF_TOKEN=<HF_AUTH_TOKEN_SECRET_NAME> \
+  --requirements-path code/llama-factory/requirements.txt \
+  --runtime nvidia-25.06 \
+  -- /layers/flexai_pip-install/packages/bin/llamafactory-cli train code/llama-factory/llama3_sft.yaml
 ```
 
 ---
 
-## Step 2: Bring Your Own Dataset
+## [Optional] Prefetch Your Own Dataset
 
 You can check our other examples, e.g. [`experiments/running-a-simple-training-job/README.md`](../running-a-simple-training-job/README.md), to see how to bring your own dataset using:
 
