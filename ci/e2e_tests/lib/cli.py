@@ -22,6 +22,13 @@ class CliError(RuntimeError):
     # note: __cause__ is always a subprocess.CalledProcessError with stderr and stdout as strings
 
 
+class RawArg:
+    """
+    Represents a raw CLI argument that should be appended as-is,
+    without any additional formatting or processing.
+    """
+
+
 def run(*args: str, timeout: int = None) -> subprocess.CompletedProcess:
     """
     Run a CLI command with the specified arguments and handle updates if necessary.
@@ -140,6 +147,10 @@ def training_run(
 
     model_args_list = []
     for key, value in model_args.items():
+        if isinstance(value, RawArg):
+            model_args_list.append(key)
+            continue
+
         if isinstance(value, bool):
             if value:
                 model_args_list.append(f"--{key}")

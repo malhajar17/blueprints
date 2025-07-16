@@ -29,7 +29,6 @@ To launch a training job:
 ```bash
 flexai training run llamafactory-sft-llama3 \
   --repository-url https://github.com/flexaihq/flexai-experiments \
-  --repository-revision llama-factory \
   --secret HF_TOKEN=<HF_AUTH_TOKEN_SECRET_NAME> \
   --requirements-path code/llama-factory/requirements.txt \
   -- llamafactory-cli train code/llama-factory/llama3_sft.yaml
