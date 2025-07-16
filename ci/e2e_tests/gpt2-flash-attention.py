@@ -7,9 +7,6 @@ from lib import cli, tools
 
 
 def main():
-    print("Flash-Attention is disabled at the moment, see AIS-214")
-    return
-
     tools.setup()
 
     training_name = tools.gen_training_name()
@@ -19,6 +16,7 @@ def main():
         dataset="ci-gpt2-tokenized-wikitext",
         repository_url="https://github.com/flexaihq/fcs-experiments-private.git",
         repository_revision=os.getenv("TRAINING_REVISION", "main"),
+        requirements_path="code/causal-language-modeling/requirements-flash-attn.txt",
         entry_point="code/causal-language-modeling/train.py",
         model_args={
             "do_eval": True,
