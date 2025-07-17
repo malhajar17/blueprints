@@ -48,6 +48,7 @@ To launch the training job:
 
 ```bash
 flexai training run llamafactory-sft-llama3 \
+  --accels 8 --nodes 2 \
   --repository-url https://github.com/flexaihq/flexai-experiments \
   --env FORCE_TORCHRUN=1 \
   --secret HF_TOKEN=<HF_AUTH_TOKEN_SECRET_NAME> \
@@ -62,6 +63,7 @@ To take advantage of model pre-fetching performed in the [Optional: Pre-fetch th
 
 ```bash
 flexai training run llamafactory-sft-llama3 \
+  --accels 8 --nodes 2 \
   --repository-url https://github.com/flexaihq/flexai-experiments \
   --checkpoint qwen25-72b \
   --env FORCE_TORCHRUN=1 \
@@ -79,6 +81,7 @@ To launch the training job:
 
 ```bash
 flexai training run llamafactory-sft-llama3 \
+  --accels 8 --nodes 2 \
   --repository-url https://github.com/flexaihq/flexai-experiments \
   --env FORCE_TORCHRUN=1 \
   --secret HF_TOKEN=<HF_AUTH_TOKEN_SECRET_NAME> \
