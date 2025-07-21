@@ -18,6 +18,7 @@ def main():
         repository_revision=os.getenv("TRAINING_REVISION", "main"),
         requirements_path="code/causal-language-modeling/requirements-flash-attn.txt",
         entry_point="code/causal-language-modeling/train.py",
+        runtime="nvidia-25.06",
         model_args={
             "do_eval": True,
             "do_train": True,

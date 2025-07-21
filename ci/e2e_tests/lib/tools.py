@@ -63,7 +63,7 @@ def setup(*options: Callable[[argparse.ArgumentParser], None]) -> argparse.Names
     if args.dry_run:
         cli.dry_run = True
     if args.runtime:
-        cli.runtime = args.runtime
+        cli.global_runtime = args.runtime
     return args
 
 
@@ -102,6 +102,7 @@ def training_run(
     entry_point: str,
     model_args: dict[str, str] = {},
     wait_timeout: int = 1800,
+    runtime: str | None = None,
 ):
     """
     Run a training job with the specified parameters.
@@ -126,6 +127,7 @@ def training_run(
         entry_point (str): The entry point script for the training job.
         model_args (dict[str, str]): Additional model arguments.
         wait_timeout (int): The maximum time to wait for the training to complete in seconds. Default is 1800 seconds.
+        runtime (str | None): The runtime to use for the training job. If None, uses the global runtime.
 
     Returns:
         None
@@ -144,6 +146,7 @@ def training_run(
         requirements_path=requirements_path,
         entry_point=entry_point,
         model_args=model_args,
+        runtime=runtime,
     )
 
     print(f"Training started with name: {name}")

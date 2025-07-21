@@ -25,6 +25,7 @@ def main():
         requirements_path="code/llama-factory/requirements.txt",
         # entry_point="llamafactory-cli", TODO: replace with this
         entry_point="/layers/flexai_pip-install/packages/bin/llamafactory-cli",
+        runtime="nvidia-25.06",
         model_args={
             "train": cli.RawArg(),
             "ci/e2e_tests/configs/llama3_sft_e2e.yaml": cli.RawArg(),

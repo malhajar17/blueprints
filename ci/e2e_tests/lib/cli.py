@@ -10,7 +10,7 @@ verbose = False
 
 dry_run = False
 
-runtime = None
+global_runtime = None
 
 
 class CliError(RuntimeError):
@@ -115,6 +115,7 @@ def training_run(
     requirements_path: str = None,
     entry_point: str,
     model_args: dict[str, str] = {},
+    runtime: str | None = None,
 ):
     """
     Run a training job with the specified parameters.
@@ -136,8 +137,11 @@ def training_run(
             flags.append(f"--repository-revision={repository_revision}")
     if requirements_path is not None:
         flags.append(f"--requirements-path={requirements_path}")
-    if runtime is not None and runtime != "":
-        flags.append(f"--runtime={runtime}")
+
+    selected_runtime = global_runtime if global_runtime else runtime
+    if selected_runtime:
+        flags.append(f"--runtime={selected_runtime}")
+
     if env is not None:
         for key, value in env.items():
             flags.append(f"--env={key}={value}")
