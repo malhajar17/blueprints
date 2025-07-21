@@ -6,7 +6,7 @@ This guide explains how to run the End-to-End (E2E) tests for the project using 
 
 Before running the E2E tests, ensure the following:
 
-1. **FCS Authentication**:
+1. **FlexAI Authentication**:
    - Log in using the `flexai` CLI to generate a fresh access token.
 
    ```bash
@@ -28,7 +28,7 @@ Before running the E2E tests, ensure the following:
 ## Running a single test directly
 
 When developing or debugging the tests, it may be useful to run a single test directly without using the CI workflows.
-Using this method, the test will run on `staging` or `production` depending on which flexai CLI is configured locally. The test won't appear in any CI jobs.
+Using this method, the test will run on `staging` or `production` depending on which `flexai` CLI is configured locally. The test won't appear in any CI jobs.
 
 To execute a test directly a simple trampoline is provided, for example:
 

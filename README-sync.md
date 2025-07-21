@@ -1,6 +1,6 @@
 # Synchronize to the Public Repo
 
-1. Ensure the public repo is located under `../fcs-experiments`.
+1. Ensure the public repo is located under `../flexai-experiments`.
 
 2. Run the synchronization script:
 

@@ -1,5 +1,5 @@
 ---
-name: Docker Build and Push FCS experiment RAG
+name: Docker Build and Push FlexAI experiment RAG
 
 on:
   push:

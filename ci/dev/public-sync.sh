@@ -2,7 +2,7 @@
 
 # Define source and destination directories
 SOURCE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../" && pwd)"
-DEST_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../../fcs-experiments" && pwd)"
+DEST_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../../flexai-experiments" && pwd)"
 
 # Rsync options
 RSYNC_OPTIONS=(

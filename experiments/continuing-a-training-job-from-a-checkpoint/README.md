@@ -1,6 +1,6 @@
 # Resuming a Training Job from Checkpoint
 
-This experiment will continue a training from a Checkpoint emitted by the Training Job in the [A simple Training Job on FCS](/experiments/running-a-simple-training-job/README.md) experiment, so make sure to complete it and download its output artifacts before proceeding.
+This experiment will continue a training from a Checkpoint emitted by the Training Job in the [A simple Training Job on FlexAI](/experiments/running-a-simple-training-job/README.md) experiment, so make sure to complete it and download its output artifacts before proceeding.
 
 Extract the contents of the `output_0.zip` file into a directory named `fetched_checkpoints`:
 
@@ -12,7 +12,7 @@ This `fetched_checkpoints` directory contains the different checkpoints that hav
 
 Let's use the checkpoint (saved at step 500) located in `fetched_checkpoints/output/checkpoint-500/`.
 
-Create the FCS checkpoint to be passed to the next run that will resume the training:
+Create the FlexAI checkpoint to be passed to the next run that will resume the training:
 
 ```bash
 flexai checkpoint push gpt2-ckpt500 --file fetched_checkpoints/output/checkpoint-500
@@ -21,7 +21,7 @@ flexai checkpoint push gpt2-ckpt500 --file fetched_checkpoints/output/checkpoint
 Resume training from your checkpoint with the following command:
 
 ```bash
-flexai training run gpt2training-resume --repository-url https://github.com/flexaihq/fcs-experiments --dataset gpt2-tokenized-wikitext --checkpoint gpt2-ckpt500 --requirements-path code/causal-language-modeling/requirements.txt \
+flexai training run gpt2training-resume --repository-url https://github.com/flexaihq/experiments --dataset gpt2-tokenized-wikitext --checkpoint gpt2-ckpt500 --requirements-path code/causal-language-modeling/requirements.txt \
   -- code/causal-language-modeling/train.py \
     --do_eval \
     --do_train \

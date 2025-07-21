@@ -18,7 +18,7 @@ To enable seamless integration with _wandb_ in your experiments, follow these st
 
 2. **Create the Secret**
 
-   Use the [`flexai secret create` command](https://docs.flex.ai/commands/secret) to store your _wandb_ API key as a secret. Replace `<WANDB_API_KEY_SECRET_NAME>` with your desired name for the secret:
+   Use the [`flexai secret create` command](https://docs.flex.ai/cli/commands/secret/) to store your _wandb_ API key as a secret. Replace `<WANDB_API_KEY_SECRET_NAME>` with your desired name for the secret:
 
    ```bash
    flexai secret create <WANDB_API_KEY_SECRET_NAME>
@@ -28,7 +28,7 @@ To enable seamless integration with _wandb_ in your experiments, follow these st
 
 3. **Note on Project Name**
 
-   Keep in mind that the project name used in your _wandb_ setup does not need to be an FCS Secret. Additionally, the project name does not need to be pre-created in _wandb_ — it will be automatically created if it doesn’t exist when you log your first experiment.
+   Keep in mind that the project name used in your _wandb_ setup does not need to be an FlexAI Secret. Additionally, the project name does not need to be pre-created in _wandb_ — it will be automatically created if it doesn’t exist when you log your first experiment.
 
 ## Log to Weights and Biases
 
@@ -64,7 +64,7 @@ In this experiment, we will use a pre-processed version of the the `wikitext` da
     DATASET_NAME=gpt2-tokenized-wikitext && curl -L -o ${DATASET_NAME}.zip "https://bucket-docs-samples-99b3a05.s3.eu-west-1.amazonaws.com/${DATASET_NAME}.zip" && unzip ${DATASET_NAME}.zip && rm ${DATASET_NAME}.zip
     ```
 
-2. Upload the dataset (located in `gpt2-tokenized-wikitext/`) to FCS:
+2. Upload the dataset (located in `gpt2-tokenized-wikitext/`) to FlexAI:
 
     ```bash
     flexai dataset push gpt2-tokenized-wikitext --file gpt2-tokenized-wikitext
@@ -75,7 +75,7 @@ In this experiment, we will use a pre-processed version of the the `wikitext` da
 Now that all the pieces are in place (_wandb_ Secret, Source, and Dataset), you can run the training job with experiment tracking enabled.
 
 ```bash
-flexai training run gpt2training-tracker --repository-url https://github.com/flexaihq/fcs-experiments --dataset gpt2-tokenized-wikitext --secret WANDB_API_KEY=<WANDB_API_KEY_SECRET_NAME> --env WANDB_PROJECT=<YOUR_PROJECT_NAME> --requirements-path code/causal-language-modeling/requirements.txt \
+flexai training run gpt2training-tracker --repository-url https://github.com/flexaihq/experiments --dataset gpt2-tokenized-wikitext --secret WANDB_API_KEY=<WANDB_API_KEY_SECRET_NAME> --env WANDB_PROJECT=<YOUR_PROJECT_NAME> --requirements-path code/causal-language-modeling/requirements.txt \
   -- code/causal-language-modeling/train.py \
     --do_eval \
     --do_train \
