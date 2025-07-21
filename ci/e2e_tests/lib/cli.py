@@ -225,9 +225,18 @@ def training_list_checkpoints(name: str):
 
     # parse iso8601 timestamps to datetime objects
     for row in data:
-        row["timestamp"] = datetime.datetime.strptime(
-            row["timestamp"], "%Y-%m-%d %H:%M:%S.%f %z %Z"
-        )
+        try:
+            row["timestamp"] = datetime.datetime.strptime(
+                row["timestamp"], "%Y-%m-%d %H:%M:%S.%f %z %Z"
+            )
+        except ValueError:
+            try:
+                # Try without microseconds
+                row["timestamp"] = datetime.datetime.strptime(
+                    row["timestamp"], "%Y-%m-%d %H:%M:%S %z %Z"
+                )
+            except ValueError:
+                raise ValueError(f"Unrecognized timestamp format: {row['timestamp']}")
 
     return data
 

@@ -7,12 +7,23 @@ from lib import cli, tools
 
 
 def main():
-    tools.setup()
+    args = tools.setup(
+        lambda args: args.add_argument(
+            "--lite",
+            action="store_true",
+            help="Run the test in lite mode, for smaller environments.",
+        )
+    )
 
-    training_name = tools.gen_training_name()
+    nodes = 2
+    accelerators = 8 if not args.lite else 1
+
+    training_name = tools.gen_training_name(nodes=nodes, accelerators=accelerators)
 
     tools.training_run(
         name=training_name,
+        nodes=nodes,
+        accelerators=accelerators,
         dataset="ci-gpt2-tokenized-wikitext",  # This dataset is not used in this test, but required for now to enable companion (bug to be fixed in infra)
         env={
             "FORCE_TORCHRUN": "1",
@@ -36,7 +47,7 @@ def main():
         logs.assert_contains(
             "Training completed.",
             "***** eval metrics *****",
-            "Total train batch size (w. parallel, distributed & accumulation) = 2",
+            f"Total train batch size (w. parallel, distributed & accumulation) = {32 if not args.lite else 4}",
         )
 
         # Verifies that the training was run with DeepSpeed ZeRO3
@@ -50,7 +61,7 @@ def main():
         checkpoints = cli.training_list_checkpoints(name=training_name)
         checkpoints_len = len(checkpoints)
         # TODO(@runtime): perfect checkpoint detection for DeepSpeed
-        expected_checkpoints = 5
+        expected_checkpoints = 10
 
         assert (
             checkpoints_len == expected_checkpoints
@@ -62,7 +73,19 @@ def main():
             checkpoint = tools.Checkpoint(item["id"])
 
             if not item["name"].startswith("global_"):
-                checkpoint.assert_exist("model.safetensors")
+                # Find all checkpoints with this name
+                same_name_checkpoints = [
+                    c for c in checkpoints if c["name"] == item["name"]
+                ]
+                # Only one of them should have model.safetensors
+                found = 0
+                for c in same_name_checkpoints:
+                    chk = tools.Checkpoint(c["id"])
+                    if chk.exists("model.safetensors"):
+                        found += 1
+                assert (
+                    found == 1
+                ), f"Expected exactly one checkpoint with model.safetensors for name '{item['name']}', found {found}"
 
             if not is_deepspeed_in_ckpt:
                 is_deepspeed_in_ckpt = checkpoint.exists("zero_to_fp32.py")
