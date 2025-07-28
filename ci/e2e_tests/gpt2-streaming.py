@@ -43,7 +43,6 @@ def main():
 
     tools.training_run(
         name=training_name,
-        dataset="ci-llama-tokenized-oag",
         repository_url="https://github.com/flexaihq/fcs-experiments-private.git",
         repository_revision=os.getenv("TRAINING_REVISION", "main"),
         requirements_path="code/causal-language-modeling/requirements.txt",

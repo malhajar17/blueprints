@@ -13,7 +13,6 @@ def main():
 
     tools.training_run(
         name=training_name,
-        dataset="ci-gpt2-tokenized-wikitext",  # This dataset is not used in this test, but required for now to enable companion (bug to be fixed in infra)
         env={
             "FORCE_TORCHRUN": "1",
         },

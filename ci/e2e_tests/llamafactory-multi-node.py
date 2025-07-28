@@ -24,7 +24,6 @@ def main():
         name=training_name,
         nodes=nodes,
         accelerators=accelerators,
-        dataset="ci-gpt2-tokenized-wikitext",  # This dataset is not used in this test, but required for now to enable companion (bug to be fixed in infra)
         env={
             "FORCE_TORCHRUN": "1",
         },
