@@ -57,15 +57,15 @@ def main():
             "Total train batch size (w. parallel, distributed & accumulation) = 8",
         )
 
-        print("Fetching checkpoints...")
-
-        checkpoints = cli.training_list_checkpoints(name=training_name)
-
-        assert len(checkpoints) == 2, f"Expected 2 checkpoints, got {len(checkpoints)}"
-
-        for item in checkpoints:
-            checkpoint = tools.Checkpoint(item["id"])
-            checkpoint.assert_exist("model.safetensors")
+        tools.assert_checkpoints(
+            training_name,
+            [
+                tools.ExpectedCheckpoint(
+                    name="checkpoint-99", files=["model.safetensors"]
+                ),
+                tools.ExpectedCheckpoint(name="", files=["model.safetensors"]),
+            ],
+        )
 
         print("Training done successfully!")
 
@@ -123,21 +123,16 @@ def prepare():
     # - checkpoint-5, during the training. It contains data we can resume from, notably optimizer.pt
     # - <root>, which contains the final model, but we cannot resume from it.
 
-    checkpoint_id = None
+    tools.assert_checkpoints(
+        training_name,
+        [
+            tools.ExpectedCheckpoint(name="checkpoint-5", files=["optimizer.pt"]),
+            tools.ExpectedCheckpoint(name="", files=["model.safetensors"]),
+        ],
+    )
 
-    for item in cli.training_list_checkpoints(name=training_name):
-        metadata = cli.checkpoint_inspect(item["id"])
-
-        for file in metadata["status"]["files"]:
-            if file["path"] == "optimizer.pt":
-                checkpoint_id = item["id"]
-                break
-
-        if checkpoint_id is not None:
-            break
-
-    if checkpoint_id is None:
-        raise RuntimeError("No checkpoint with optimizer.pt found in the training run.")
+    checkpoint_data = cli.training_list_checkpoints(name=training_name)[0]
+    checkpoint_id = checkpoint_data.get("id")
 
     print(f"Preparation done successfully: checkpoint id: {checkpoint_id}!")
     return checkpoint_id

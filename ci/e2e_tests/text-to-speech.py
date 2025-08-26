@@ -3,7 +3,7 @@
 import os
 import sys
 
-from lib import cli, tools
+from lib import tools
 
 
 def main():
@@ -114,26 +114,30 @@ def main():
             f"Total train batch size (w. parallel & distributed) = {batch_size}",
         )
 
-        print("Fetching checkpoints...")
-
-        checkpoints = cli.training_list_checkpoints(name=training_name)
-
-        # Staging: checkpoint-15, checkpoint-20, final checkpoint
-        # Production: checkpoint-50, checkpoint-99, final checkpoint
-        expected_checkpoint_counts = 3
-
-        assert (
-            len(checkpoints) == expected_checkpoint_counts
-        ), f"Expected {expected_checkpoint_counts} checkpoints, got {len(checkpoints)}"
-
-        # We have multiple checkpoints without config.json, and with a pytorch_model.bin
-        # And one final checkpoint with config.json, and a model.safetensors
-        for item in checkpoints:
-            checkpoint = tools.Checkpoint(item["id"])
-            if checkpoint.exists("config.json"):
-                checkpoint.assert_exist("model.safetensors")
-            else:
-                checkpoint.assert_exist("pytorch_model.bin")
+        tools.assert_checkpoints(
+            training_name,
+            [
+                tools.ExpectedCheckpoint(
+                    name=(
+                        "checkpoint-50-epoch-0"
+                        if not args.lite
+                        else "checkpoint-15-epoch-0"
+                    ),
+                    files=["pytorch_model.bin"],
+                ),
+                tools.ExpectedCheckpoint(
+                    name=(
+                        "checkpoint-99-epoch-0"
+                        if not args.lite
+                        else "checkpoint-20-epoch-0"
+                    ),
+                    files=["pytorch_model.bin"],
+                ),
+                tools.ExpectedCheckpoint(
+                    name="", files=["config.json", "model.safetensors"]
+                ),
+            ],
+        )
 
         print("Training done successfully!")
 

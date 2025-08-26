@@ -1,7 +1,7 @@
 accelerate==1.8.1
 bitsandbytes==0.43.2
 datasets>=2.21.0
-diffusers>=0.30.3
+diffusers==0.30.3
 peft==0.15.0
 transformers>=4.43.3
 trl==0.11.4

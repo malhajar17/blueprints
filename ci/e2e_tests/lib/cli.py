@@ -212,16 +212,13 @@ def training_list_checkpoints(name: str):
         res = run(
             "training",
             "checkpoints",
+            "--json",
             name,
         )
     except CliError:
         _raise_refined_training_error(name)
 
-    (headers, data) = _parse_table(res.stdout)
-
-    assert (
-        "id" in headers and "timestamp" in headers
-    ), "Unexpected headers in checkpoints table."
+    data = json.loads(res.stdout.strip())
 
     # parse iso8601 timestamps to datetime objects
     for row in data:
@@ -235,8 +232,10 @@ def training_list_checkpoints(name: str):
                 row["timestamp"] = datetime.datetime.strptime(
                     row["timestamp"], "%Y-%m-%d %H:%M:%S %z %Z"
                 )
-            except ValueError:
-                raise ValueError(f"Unrecognized timestamp format: {row['timestamp']}")
+            except ValueError as exc:
+                raise ValueError(
+                    f"Unrecognized timestamp format: {row['timestamp']}"
+                ) from exc
 
     return data
 
@@ -346,46 +345,3 @@ def _raise_refined_training_error(name: str):
         raise RuntimeError(f"Training job '{name}' already exists.") from e
 
     raise
-
-
-def _parse_table(raw: str) -> tuple[list[str], list[dict]]:
-    """
-    Parse a table from the raw output of a CLI command.
-    """
-
-    #  ID                                   │ TIMESTAMP
-    # ──────────────────────────────────────┼───────────────────────────────────
-    #  94abeb19-df8a-40c4-b1f4-df130b4e7bbd │ 2025-06-05 09:07:43.816 +0000 UTC
-    #  41ce138e-e1b6-4f9f-b165-628222295870 │ 2025-06-05 09:08:26.65 +0000 UTC
-    #  490329c1-9f07-4ebf-8ad2-0e409d706dc0 │ 2025-06-05 09:08:26.65 +0000 UTC
-
-    # when empty:
-    #  ID                                   │ TIMESTAMP
-
-    lines = raw.strip().splitlines()
-    lines = [x for x in lines if x]
-
-    # first line is the header
-    if len(lines) < 1:
-        raise ValueError("Not enough lines to parse a table.")
-
-    headers = lines[0].split("│")
-    # remove leading/trailing whitespace from headers
-    headers = [h.strip() for h in headers if h.strip()]
-    # transform headers to kebab-case
-    # (e.g. "ID" -> "id", "TIMESTAMP" -> "timestamp")
-    headers = [h.lower().replace(" ", "-") for h in headers]
-
-    # ignore the separator line, next lines are the data rows
-    rows = []
-    for i, line in enumerate(lines[2:]):
-        cells = line.split("│")
-        cells = [c.strip() for c in cells]
-
-        if len(cells) != len(headers):
-            raise ValueError(
-                f"Row {i + 2} has {len(cells)} cells, expected {len(headers)}."
-            )
-        rows.append(dict(zip(headers, cells)))
-
-    return headers, rows

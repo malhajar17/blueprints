@@ -44,29 +44,23 @@ def main():
             "DeepSpeed Final Optimizer = DeepSpeedZeroOptimizer_Stage3",
         )
 
-        print("Fetching checkpoints...")
-
-        checkpoints = cli.training_list_checkpoints(name=training_name)
-        checkpoints_len = len(checkpoints)
-        # TODO(@runtime): perfect checkpoint detection for DeepSpeed
-        expected_checkpoints = 5
-
-        assert (
-            checkpoints_len == expected_checkpoints
-        ), f"Expected {expected_checkpoints} checkpoints, got {checkpoints_len}"
-
-        is_deepspeed_in_ckpt = False
-
-        for item in checkpoints:
-            checkpoint = tools.Checkpoint(item["id"])
-
-            if not item["name"].startswith("global_"):
-                checkpoint.assert_exist("model.safetensors")
-
-            if not is_deepspeed_in_ckpt:
-                is_deepspeed_in_ckpt = checkpoint.exists("zero_to_fp32.py")
-
-        assert is_deepspeed_in_ckpt, "Expected a checkpoint with DeepSpeed Zero3"
+        tools.assert_checkpoints(
+            training_name,
+            [
+                tools.ExpectedCheckpoint(
+                    name="checkpoint-50",
+                    # zero_to_fp32.py means that Deepspeed is in the checkpoint
+                    files=["model.safetensors", "zero_to_fp32.py"],
+                ),
+                tools.ExpectedCheckpoint(
+                    name="checkpoint-99",
+                    files=["model.safetensors", "zero_to_fp32.py"],
+                ),
+                tools.ExpectedCheckpoint(name="global_step50"),
+                tools.ExpectedCheckpoint(name="global_step98"),
+                tools.ExpectedCheckpoint(name="", files=["model.safetensors"]),
+            ],
+        )
 
         print("Training done successfully!")
 

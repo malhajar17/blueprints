@@ -3,7 +3,7 @@
 import os
 import sys
 
-from lib import cli, tools
+from lib import tools
 
 
 def main():
@@ -66,15 +66,18 @@ def main():
             f"Total train batch size (w. parallel, distributed & accumulation) = {batch_size}",
         )
 
-        print("Fetching checkpoints...")
-
-        checkpoints = cli.training_list_checkpoints(name=training_name)
-
-        assert len(checkpoints) == 2, f"Expected 2 checkpoints, got {len(checkpoints)}"
-
-        for item in checkpoints:
-            checkpoint = tools.Checkpoint(item["id"])
-            checkpoint.assert_exist("pytorch_lora_weights.safetensors")
+        tools.assert_checkpoints(
+            training_name,
+            [
+                tools.ExpectedCheckpoint(
+                    name="checkpoint-50",
+                    files=["pytorch_lora_weights.safetensors"],
+                ),
+                tools.ExpectedCheckpoint(
+                    name="", files=["pytorch_lora_weights.safetensors"]
+                ),
+            ],
+        )
 
         print("Training done successfully!")
 

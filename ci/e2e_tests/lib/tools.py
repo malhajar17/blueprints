@@ -1,12 +1,9 @@
 import argparse
 import os
 import random
-import shutil
 import string
 import sys
-import tempfile
 import time
-from contextlib import contextmanager
 from typing import Callable
 
 import __main__
@@ -84,7 +81,7 @@ def gen_training_name(model: str = None, *, nodes=1, accelerators=1) -> str:
         suffix = "".join(random.choices(string.ascii_lowercase + string.digits, k=6))
         print(f"TRAINING_SUFFIX not set, using random suffix: {suffix}")
 
-    return f"{model}{suffix}"
+    return f"{model}-{suffix}"
 
 
 def training_run(
@@ -417,109 +414,129 @@ class TrainingLogs:
         print("Phrases check passed in logs.")
 
 
-class Checkpoint:
+class ExpectedCheckpoint:
     """
-    Class to handle checkpoint operations.
+    Class to provide details on what is expected on a checkpoint
     """
 
-    name: str
-    files: dict[str, int]
-
-    def __init__(self, name: str):
+    def __init__(self, *, name: str = None, node: str = None, files: list[str] = None):
         self.name = name
-        data = cli.checkpoint_inspect(id=name)
+        self.node = node
+        self.files = files
+
+
+class _ActualCheckpoint:
+    """
+    Reflect of ExpectedCheckpoint, with corresponding actual values
+    """
+
+    def __init__(self, expected: ExpectedCheckpoint, checkpoint_data):
+        self.name = None
+        self.node = None
+        self.files = None
+
+        # Fetch only data if there are matching expectations
+        if expected.name is not None:
+            self.name = checkpoint_data.get("name")
+
+        if expected.node is not None:
+            self.node = checkpoint_data.get("node")
+
+        if expected.files is not None:
+            self.fetch_files(checkpoint_data.get("id"))
+
+    def fetch_files(self, checkpoint_id: str):
+        """
+        Fetch the files from the checkpoint.
+        """
+        data = cli.checkpoint_inspect(id=checkpoint_id)
 
         self.files = dict()
 
         for item in data["status"]["files"]:
             path = item["path"]
-            size = parse_size(item["size"])
+            size = item["size"]
             self.files[path] = size
 
-    @contextmanager
-    def fetch(self):
-        """
-        Context manager to fetch a checkpoint in a temporary directory.
-
-        At the end of the context, the temporary directory is cleaned up.
-        """
-
-        temp_dir = tempfile.mkdtemp()
-
-        cli.checkpoint_fetch(
-            id=self.name,
-            target_directory=temp_dir,
-        )
-
-        try:
-            yield temp_dir
-        finally:
-            shutil.rmtree(temp_dir, ignore_errors=True)
-
-    def size(self) -> int:
-        """
-        Get the size of the fetched checkpoint directory.
-
-        Returns:
-            int: The size of the directory in bytes.
-        """
-
-        # It seems the overall size is always 0, so let's calculate it manually
-        return sum(self.files.values())
-
-    def exists(self, path: str) -> bool:
-        """
-        Check if a file exists in the fetched checkpoint directory.
-
-        Args:
-            name (str): The name of the file to check for existence.
-
-        Returns:
-            bool: True if the file exists, False otherwise.
-        """
-
-        return self.files.get(path) is not None
-
-    def assert_exist(self, name: str):
-        """
-        Assert that a file exists in the fetched checkpoint directory.
-
-        Args:
-            name (str): The name of the file to check for existence.
-
-        Raises:
-            AssertionError: If the file does not exist.
-        """
-        assert self.exists(
-            name
-        ), f"File '{name}' does not exist in checkpoint {self.name}."
+    def __str__(self):
+        value = ""
+        if self.name is not None:
+            value += f"name='{self.name}' "
+        if self.node is not None:
+            value += f"node='{self.node}' "
+        if self.files is not None:
+            files = sorted(self.files.keys())
+            value += f"files={files}"
+        return value
 
 
-def parse_size(size_str: str) -> int:
+def assert_checkpoints(training_name: str, expected: list[ExpectedCheckpoint]):
+    print("Fetching checkpoints...")
+
+    data = cli.training_list_checkpoints(name=training_name)
+
+    # Sort checkpoints by node, name (empty names last)
+    actual = sorted(data, key=lambda x: (x["node"], x["name"] == "", x["name"]))
+
+    assert len(actual) == len(expected), (
+        f"Expected {len(expected)} checkpoints, got {len(actual)}\n"
+        + "\n"
+        + "Actual checkpoints:\n"
+        + "\n".join([f" - '{c['name']}' on node {c['node']}" for c in actual])
+    )
+
+    # Build actual data
+    for index, act in enumerate(actual):
+        act = _ActualCheckpoint(expected[index], act)
+        actual[index] = act
+
+    # Build list of differences
+    diffs = []
+
+    for index, act, exp in zip(range(len(actual)), actual, expected):
+        if act.name != exp.name:
+            diffs.append(
+                (
+                    f"Expected checkpoint name '{exp.name}', got '{act.name}' for checkpoint #{index}"
+                )
+            )
+
+        if act.node != exp.node:
+            diffs.append(
+                (
+                    f"Expected checkpoint node '{exp.node}', got '{act.node}' for checkpoint #{index}"
+                )
+            )
+
+        if not _match_files(act, exp):
+            diffs.append(
+                (
+                    f"Checkpoint #{index} ({act.name}) on node {act.node} has unexpected files"
+                )
+            )
+
+    assert not diffs, (
+        "\n"
+        + "Issues found:\n"
+        + "".join(f"- {d}\n" for d in diffs)
+        + "\n"
+        + "Actual checkpoints:\n"
+        + "\n".join([f" - {c}" for c in actual])
+    )
+
+    print("All expected checkpoints exist.")
+
+
+def _match_files(act: _ActualCheckpoint, exp: ExpectedCheckpoint) -> bool:
     """
-    Parse a size string (e.g., '10 MB', '2.1 GB', '725 bytes') into bytes.
-
-    Args:
-        size_str (str): The size string to parse.
-
-    Returns:
-        int: The size in bytes.
+    Check if the actual files match the expected files.
     """
-    size_str = size_str.strip().lower()
-    size, unit = size_str.split(" ")
 
-    size = float(size)
-    unit = unit.lower()
+    if exp.files is None:
+        return True  # No expectations
 
-    if unit == "bytes":
-        return int(size)
-    elif unit == "kb":
-        return int(size * 1024)
-    elif unit == "mb":
-        return int(size * 1024 * 1024)
-    elif unit == "gb":
-        return int(size * 1024 * 1024 * 1024)
-    elif unit == "tb":
-        return int(size * 1024 * 1024 * 1024 * 1024)
-    else:
-        raise ValueError(f"Unknown size unit: {unit}")
+    for file in exp.files:
+        if act.files.get(file) is None:
+            return False  # Expected file not found
+
+    return True

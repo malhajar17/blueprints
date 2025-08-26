@@ -3,7 +3,7 @@
 import os
 import sys
 
-from lib import cli, tools
+from lib import tools
 
 
 def main():
@@ -54,19 +54,25 @@ def main():
             f"Total train batch size (w. parallel, distributed & accumulation) = {128 if not args.lite else 16}",
         )
 
-        print("Fetching checkpoints...")
-
-        checkpoints = cli.training_list_checkpoints(name=training_name)
-
-        # TODO: refactor when metadata on checkpoints is available
-        found_model = False
-        for item in checkpoints:
-            checkpoint = tools.Checkpoint(item["id"])
-            if checkpoint.exists("model.safetensors"):
-                found_model = True
-                break
-
-        assert found_model, "No checkpoint with model data found."
+        # Due to checkpoint grouping, no matter how many accelerator we have, we get consistent results per node.
+        tools.assert_checkpoints(
+            training_name,
+            [
+                tools.ExpectedCheckpoint(
+                    name="checkpoint-50", node="0", files=["model.safetensors"]
+                ),
+                tools.ExpectedCheckpoint(
+                    name="checkpoint-99", node="0", files=["model.safetensors"]
+                ),
+                tools.ExpectedCheckpoint(
+                    name="", node="0", files=["model.safetensors"]
+                ),
+                # data only on node 0
+                tools.ExpectedCheckpoint(name="checkpoint-50", node="1"),
+                tools.ExpectedCheckpoint(name="checkpoint-99", node="1"),
+                tools.ExpectedCheckpoint(name="", node="1"),
+            ],
+        )
 
         print("Training done successfully!")
 

@@ -3,7 +3,7 @@
 import os
 import sys
 
-from lib import cli, tools
+from lib import tools
 
 
 def main():
@@ -68,19 +68,15 @@ def main():
             f"Total train batch size (w. parallel, distributed & accumulation) = {batch_size}",
         )
 
-        print("Fetching checkpoints...")
-
-        checkpoints = cli.training_list_checkpoints(name=training_name)
-
-        # TODO: refactor when metadata on checkpoints is available
-        found_model = False
-        for item in checkpoints:
-            checkpoint = tools.Checkpoint(item["id"])
-            if checkpoint.exists("adapter_model.safetensors"):
-                found_model = True
-                break
-
-        assert found_model, "No checkpoint with model data found."
+        tools.assert_checkpoints(
+            training_name,
+            [
+                tools.ExpectedCheckpoint(
+                    name="checkpoint-9" if args.lite else "checkpoint-99"
+                ),
+                tools.ExpectedCheckpoint(name="", files=["adapter_model.safetensors"]),
+            ],
+        )
 
         print("Training done successfully!")
 

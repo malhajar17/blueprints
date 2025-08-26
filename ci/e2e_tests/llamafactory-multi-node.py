@@ -47,49 +47,38 @@ def main():
             "Training completed.",
             "***** eval metrics *****",
             f"Total train batch size (w. parallel, distributed & accumulation) = {32 if not args.lite else 4}",
-        )
-
-        # Verifies that the training was run with DeepSpeed ZeRO3
-        logs.assert_contains(
+            # Verifies that the training was run with DeepSpeed ZeRO3
             "DeepSpeed ZeRO3 detected",
             "DeepSpeed Final Optimizer = DeepSpeedZeroOptimizer_Stage3",
         )
 
-        print("Fetching checkpoints...")
-
-        checkpoints = cli.training_list_checkpoints(name=training_name)
-        checkpoints_len = len(checkpoints)
-        # TODO(@runtime): perfect checkpoint detection for DeepSpeed
-        expected_checkpoints = 10
-
-        assert (
-            checkpoints_len == expected_checkpoints
-        ), f"Expected {expected_checkpoints} checkpoints, got {checkpoints_len}"
-
-        is_deepspeed_in_ckpt = False
-
-        for item in checkpoints:
-            checkpoint = tools.Checkpoint(item["id"])
-
-            if not item["name"].startswith("global_"):
-                # Find all checkpoints with this name
-                same_name_checkpoints = [
-                    c for c in checkpoints if c["name"] == item["name"]
-                ]
-                # Only one of them should have model.safetensors
-                found = 0
-                for c in same_name_checkpoints:
-                    chk = tools.Checkpoint(c["id"])
-                    if chk.exists("model.safetensors"):
-                        found += 1
-                assert (
-                    found == 1
-                ), f"Expected exactly one checkpoint with model.safetensors for name '{item['name']}', found {found}"
-
-            if not is_deepspeed_in_ckpt:
-                is_deepspeed_in_ckpt = checkpoint.exists("zero_to_fp32.py")
-
-        assert is_deepspeed_in_ckpt, "Expected a checkpoint with DeepSpeed Zero3"
+        tools.assert_checkpoints(
+            training_name,
+            [
+                # zero_to_fp32.py indicates DeepSpeed checkpoint
+                tools.ExpectedCheckpoint(
+                    name="checkpoint-50",
+                    node="0",
+                    files=["model.safetensors", "zero_to_fp32.py"],
+                ),
+                tools.ExpectedCheckpoint(
+                    name="checkpoint-99",
+                    node="0",
+                    files=["model.safetensors", "zero_to_fp32.py"],
+                ),
+                tools.ExpectedCheckpoint(name="global_step50", node="0"),
+                tools.ExpectedCheckpoint(name="global_step99", node="0"),
+                tools.ExpectedCheckpoint(
+                    name="", node="0", files=["model.safetensors"]
+                ),
+                # data only on node 0
+                tools.ExpectedCheckpoint(name="checkpoint-50", node="1"),
+                tools.ExpectedCheckpoint(name="checkpoint-99", node="1"),
+                tools.ExpectedCheckpoint(name="global_step50", node="1"),
+                tools.ExpectedCheckpoint(name="global_step99", node="1"),
+                tools.ExpectedCheckpoint(name="", node="1"),
+            ],
+        )
 
         print("Training done successfully!")
 

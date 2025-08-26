@@ -60,13 +60,18 @@ def main():
 
         print("Fetching checkpoints...")
 
-        checkpoints = cli.training_list_checkpoints(name=training_name)
-
-        assert len(checkpoints) == 3, f"Expected 3 checkpoints, got {len(checkpoints)}"
-
-        for item in checkpoints:
-            checkpoint = tools.Checkpoint(item["id"])
-            checkpoint.assert_exist("model.safetensors")
+        tools.assert_checkpoints(
+            training_name,
+            [
+                tools.ExpectedCheckpoint(
+                    name="checkpoint-50", files=["model.safetensors"]
+                ),
+                tools.ExpectedCheckpoint(
+                    name="checkpoint-99", files=["model.safetensors"]
+                ),
+                tools.ExpectedCheckpoint(name="", files=["model.safetensors"]),
+            ],
+        )
 
         print("Training done successfully!")
 
