@@ -24,6 +24,7 @@ The following table lists out the experiments available in this repository. Each
 | 8   | [Fine-Tuning a Text-to-Speech Model](/experiments/ft-on-a-tts-model/README.md)                                                   | Fine-tune a text-to-speech (TTS) model                                                                                     |
 | 9   | [Fine-Tuning a language Model using _Flash Attention_](/experiments/flash-attention-ft-on-a-language-model/README.md)            | Fine-tune a causal language model efficiently using the [flash-attn package](https://github.com/Dao-AILab/flash-attention) |
 | 10  | [Fine-Tuning a language Model with LlamaFactory](/experiments/llama-factory/README.md)                                           | Demonstrates how to use [LlamaFactory](https://github.com/hiyouga/LLaMA-Factory) with FlexAI                               |
+| 13  | [Multi-Agent Orchestration with LangGraph](/experiments/multi-agent/README.md)                                                   | Build a multi-agent system where specialized AI agents work together under a central supervisor                            |
 
 ---
 
