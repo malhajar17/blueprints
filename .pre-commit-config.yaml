@@ -16,6 +16,7 @@ repos:
   hooks:
   - id: yamlfmt
     args: [--mapping, '2', --sequence, '2', --offset, '0']
+    exclude: ^\.github/workflows/repo-compliance.yaml
 
 - repo: https://github.com/pycqa/isort
   rev: 5.12.0
