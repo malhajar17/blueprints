@@ -96,7 +96,8 @@ def on_files_uploaded(history, files):
         try:
             rag_pipeline.add_documents([f])
         except Exception as e:
-            error_msgs.append(f"File '{f.split("/")[-1]}': {e}")
+            filename = f.split("/")[-1]
+            error_msgs.append(f"File '{filename}': {e}")
     if error_msgs:
         error_msg = "<br>".join(
             f"<span style='color:red; font-weight:bold;'>Error: {msg}</span>"
