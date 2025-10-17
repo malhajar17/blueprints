@@ -32,6 +32,12 @@ Using this method, the test will run on `staging` or `production` depending on w
 
 To execute a test directly a simple trampoline is provided, for example:
 
+**LlamaFactory test:**
 ```bash
 ./ci/e2e_tests/gpt2-simple.py
+```
+
+**Axolotl test:**
+```bash
+./ci/e2e_tests/axolotl-simple.py
 ```
