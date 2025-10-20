@@ -117,7 +117,7 @@ For a 7B model, we recommend using **1 node (8 × H100 GPUs)** to ensure reasona
 ```bash
 flexai training run domain-specific-qwen25-7b-sft \
   --accels 8 --nodes 1 \
-  --repository-url https://github.com/flexaihq/experiments \
+  --repository-url https://github.com/flexaihq/blueprints \
   --env FORCE_TORCHRUN=1 \
   --secret HF_TOKEN=<HF_AUTH_TOKEN_SECRET_NAME> \
   --requirements-path code/llama-factory/requirements.txt \
@@ -131,7 +131,7 @@ To take advantage of model pre-fetching performed in the [Optional: Pre-fetch th
 ```bash
 flexai training run domain-specific-qwen25-7b-sft-prefetched \
   --accels 8 --nodes 1 \
-  --repository-url https://github.com/flexaihq/experiments \
+  --repository-url https://github.com/flexaihq/blueprints \
   --checkpoint qwen25-7b \
   --env FORCE_TORCHRUN=1 \
   --secret HF_TOKEN=<HF_AUTH_TOKEN_SECRET_NAME> \
@@ -158,6 +158,7 @@ flexai training logs domain-specific-qwen25-7b-sft
 For advanced monitoring and visualization of training metrics, you can leverage TensorBoard integration. FlexAI supports TensorBoard logging for detailed insights into training progress, loss curves, and model performance.
 
 To enable TensorBoard logging, update your YAML configuration:
+
 ```yaml
 report_to: tensorboard
 ```
@@ -206,16 +207,20 @@ Once the endpoint is running, you can test it with domain-specific prompts. For 
 To illustrate the improvement from fine-tuning on French data, here's a comparison using the question: **"Qui a gagné la Coupe du monde 2018 ?"** (who won the 2018 world cup?)
 
 **Base Model Response (Qwen/Qwen2.5-7B before training):**
+
 ```
 La Coupe du monde de football 2018 a été remportée par la Russie.
 ```
-*Issues: Incorrect answer (says Russia instead of France)*
+
+*Issues: Incorrect answer (says Russia instead of France)_
 
 **Fine-tuned Model Response (after training on openhermes-fr):**
+
 ```
 La France a remporté la Coupe du monde de football 2018, en battant le Croatie lors de la finale disputée à Moscou le 15 juillet 2018.
 ```
-*Improvements: Correct answer (France), excellent French grammar, accurate details, proper structure*
+
+*Improvements: Correct answer (France), excellent French grammar, accurate details, proper structure_
 
 This example demonstrates the dramatic improvement in both factual accuracy and French language quality after domain-specific fine-tuning.
 
@@ -243,12 +248,14 @@ After fine-tuning on domain-specific data, your model should achieve:
 - **Maintained General Capabilities**: Preserved reasoning, problem-solving, and general language skills
 
 For our French language example:
+
 - **Strong French Language Understanding**: Natural conversation flow, proper grammar, cultural context
 - **High Performance on French Tasks**: Question answering, text summarization, creative writing
 
 ## Technical Details
 
-### Training Configuration Breakdown:
+### Training Configuration Breakdown
+
 - **DeepSpeed ZeRO Stage 3**: Enables training of 7B model on 1 node efficiently
 - **Mixed Precision (bf16)**: Accelerates training while maintaining numerical stability
 - **Gradient Accumulation**: Effective batch size of 4 (2 steps × 2 per device)
@@ -258,6 +265,7 @@ For our French language example:
 ### Resource Requirements
 
 **Recommended Configuration for Qwen2.5-7B:**
+
 - **Nodes**: 1 node (cost-effective for 7B models)
 - **Accelerators**: 8 × H100 GPUs per node
 - **Memory**: ~200GB+ GPU memory total
@@ -265,9 +273,11 @@ For our French language example:
 - **Storage**: ~30GB for checkpoints
 
 **Command Line Parameters Explained:**
+
 - `FORCE_TORCHRUN=1`: Ensures proper distributed training setup
 
-### Scaling Options:
+### Scaling Options
+
 - For faster training: Increase to 2 nodes (16 × H100)
 - For larger datasets: Adjust `max_samples` parameter
 - For longer context: Increase `cutoff_len` (requires more memory)
@@ -278,25 +288,29 @@ For our French language example:
 **Common Issues:**
 
 **Training Job Fails to Start:**
+
 ```bash
 # Check FlexAI authentication
 flexai auth status
 
 # Verify repository access
-git clone https://github.com/flexaihq/experiments
+git clone https://github.com/flexaihq/blueprints
 ```
 
 **Out of Memory Errors:**
+
 - Reduce `per_device_train_batch_size` from 1 to lower value
 - Increase `gradient_accumulation_steps` to maintain effective batch size
 - Consider using `finetuning_type: lora` for memory efficiency
 
 **Checkpoint Not Inference Ready:**
+
 - Wait for training to complete fully (check with `flexai training inspect`)
 - Ensure `save_only_model: false` in YAML configuration
 - Verify training completed successfully without errors
 
 **Endpoint Deployment Issues:**
+
 - Verify checkpoint shows `INFERENCE READY = true` status
 - Check FlexAI cluster availability with `flexai inference list`
 - Review detailed logs with `flexai inference logs <endpoint-name>`

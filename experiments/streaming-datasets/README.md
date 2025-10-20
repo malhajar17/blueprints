@@ -19,7 +19,7 @@ This will allow FlexAI to pull repositories directly from GitHub using the `-u` 
 Here is an example using the `code/causal-language-modeling/train.py` script to stream the over 90 TB [Fineweb dataset](https://huggingface.co/datasets/HuggingFaceFW/fineweb):
 
 ```bash
-flexai training run gpt2training-stream --repository-url https://github.com/flexaihq/experiments --requirements-path code/causal-language-modeling/requirements.txt \
+flexai training run gpt2training-stream --repository-url https://github.com/flexaihq/blueprints --requirements-path code/causal-language-modeling/requirements.txt \
    -- code/causal-language-modeling/train.py \
     --dataset_streaming true \
     --do_train \
@@ -39,7 +39,7 @@ flexai training run gpt2training-stream --repository-url https://github.com/flex
 The first line defines the 3 main components required to run a Training Job in FlexAI:
 
 1. The Training Job's name (`gpt2training-stream`).
-1. The URL of the repository containing the training script (`https://github.com/flexaihq/experiments`).
+1. The URL of the repository containing the training script (`https://github.com/flexaihq/blueprints`).
 1. The name of the dataset to be used (`empty-dataset` or any other dataset you have available).
 
 The second line is defines the script that will be executed when the Training Job is started (`code/causal-language-modeling/train.py`).
