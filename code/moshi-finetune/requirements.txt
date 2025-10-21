@@ -18,5 +18,5 @@ whisper_timestamped
 huggingface_hub>=0.24,<0.34
 submitit
 
-# Modified moshi package (no pytest conflicts)
--e ./code/moshi-finetune
+# Moshi package from your fork (real package for training)
+git+https://github.com/malhajar17/moshi.git#egg=moshi&subdirectory=moshi
