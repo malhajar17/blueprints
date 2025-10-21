@@ -1,0 +1,22 @@
+# Moshi dependencies with pytest conflicts resolved
+# Install with: pip install -r requirements.txt
+
+# Core utilities
+fire
+simple-parsing
+pyyaml
+safetensors
+tensorboard
+tqdm
+
+# Audio processing
+sphn==0.1.12
+auditok==0.2
+whisper_timestamped
+
+# ML/AI utilities (compatible versions)
+huggingface_hub>=0.24,<0.34
+submitit
+
+# Modified moshi package (no pytest conflicts)
+-e ./code/moshi-finetune/moshi_modified
