@@ -2,7 +2,7 @@
 data:
   eval_data: '' # Optional Fill
   shuffle: true
-  train_data: '/input-checkpoint' # Path to pre-fetched kyutai/DailyTalkContiguous dataset
+  train_data: '/workspace/DailyTalkContiguous' # Path to pre-fetched kyutai/DailyTalkContiguous dataset
 
 # model
 moshi_paths: 
