@@ -108,6 +108,24 @@ To speed up training and avoid downloading large models at runtime, you can pre-
 
 This pre-fetched checkpoint can then be used in your training command to reduce startup time.
 
+## [Optional] Pre-fetch the Dataset
+
+Similar to pre-fetching models, you can also pre-fetch datasets to FlexAI storage to avoid downloading them at training runtime. For example, to pre-fetch the `kyutai/DailyTalkContiguous` dataset:
+
+1. **Create a HuggingFace storage provider (if not already created):**
+
+    ```bash
+    flexai storage create HF-STORAGE --provider huggingface --hf-token-name <HF_AUTH_TOKEN_SECRET_NAME>
+    ```
+
+2. **Push the dataset to your storage:**
+
+    ```bash
+    flexai dataset push dailytalk-contiguous --storage-provider HF-STORAGE --source-path kyutai/DailyTalkContiguous
+    ```
+
+This pre-fetched dataset can then be used in your training command by adding the `--dataset dailytalk-contiguous` flag, making it accessible at `/input/dailytalk-contiguous` during training.
+
 ## Training
 
 For a 7B model, we recommend using **1 node (8 × H100 GPUs)** to ensure reasonable training time and avoid out-of-memory issues.
