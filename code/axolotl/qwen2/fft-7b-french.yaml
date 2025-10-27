@@ -5,7 +5,7 @@ base_model: Qwen/Qwen2.5-7B
 
 datasets:
 - path: legmlai/openhermes-fr
-  type: completion
+  type: alpaca
   field_instruction: prompt
   field_output: accepted_completion
 dataset_prepared_path:
