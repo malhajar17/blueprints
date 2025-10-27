@@ -3,9 +3,6 @@ setuptools==75.8.0
 wheel
 ninja
 
-# PyTorch - explicit version to avoid alpha conflicts
-torch==2.8.0
-
 flash-attn>=2.6.3
 
 # Install deepspeed
