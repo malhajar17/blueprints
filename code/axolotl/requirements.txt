@@ -1,12 +1,19 @@
+# Pre-install build dependencies to avoid build isolation issues
+# These should be installed first to ensure proper compilation of native extensions
 packaging==23.2
 setuptools==75.8.0
 wheel
 ninja
 
+# Note: nvidia-25.06 runtime should already include torch 2.8, xformers, etc.
+# We only install what's needed to complete the axolotl installation
+
+# Install flash-attn with pre-built wheels (if not already in runtime)
 flash-attn>=2.6.3
 
 # Install deepspeed
 deepspeed>=0.15.0
 
-# Install axolotl from GitHub
-git+https://github.com/malhajar17/axolotl_ex
+# Install axolotl from your fork
+# We install it directly without the extras since dependencies are pre-installed
+git+https://github.com/malhajar17/axolotl_ex.git

@@ -1,23 +1,32 @@
 ---
-base_model: Qwen/Qwen2.5-7B
+base_model: NousResearch/Meta-Llama-3.1-8B
 # Automatically upload checkpoint and final model to HF
 # hub_model_id: username/custom_model_name
 
-datasets:
-- path: legmlai/openhermes-fr
-  type:
-    system_prompt: ""
-    field_instruction: prompt
-    field_output: accepted_completion
-    format: "{instruction}"
-    no_input_format: "{instruction}"
-dataset_prepared_path:
-val_set_size: 0.05
-output_dir: /output-checkpoint
+plugins:
+- axolotl.integrations.liger.LigerPlugin
+liger_rope: true
+liger_rms_norm: true
+liger_glu_activation: true
+liger_fused_linear_cross_entropy: true
 
-sequence_len: 2048
+
+chat_template: llama3
+datasets:
+- path: mlabonne/FineTome-100k
+  type: chat_template
+  split: train[:20%]
+  field_messages: conversations
+  message_property_mappings:
+    role: from
+    content: value
+
+dataset_prepared_path: last_run_prepared
+val_set_size: 0.02
+output_dir: ./outputs/out
+
+sequence_len: 4096
 sample_packing: true
-eval_sample_packing: true
 
 
 wandb_project:
@@ -26,15 +35,15 @@ wandb_watch:
 wandb_name:
 wandb_log_model:
 
-gradient_accumulation_steps: 2
-micro_batch_size: 1
-num_epochs: 3
+gradient_accumulation_steps: 4
+micro_batch_size: 2
+num_epochs: 1
 optimizer: adamw_torch_fused
 lr_scheduler: cosine
-learning_rate: 1.0e-5
+learning_rate: 2e-5
 
 bf16: auto
-tf32: true
+tf32: false
 
 gradient_checkpointing: true
 gradient_checkpointing_kwargs:
@@ -44,7 +53,7 @@ logging_steps: 1
 flash_attention: true
 
 warmup_ratio: 0.1
-evals_per_epoch: 4
+evals_per_epoch: 2
 saves_per_epoch: 1
 weight_decay: 0.0
 fsdp:
@@ -57,9 +66,12 @@ fsdp_config:
   fsdp_use_orig_params: false
   fsdp_cpu_ram_efficient_loading: true
   fsdp_auto_wrap_policy: TRANSFORMER_BASED_WRAP
-  fsdp_transformer_layer_cls_to_wrap: Qwen2DecoderLayer
+  fsdp_transformer_layer_cls_to_wrap: LlamaDecoderLayer
   fsdp_state_dict_type: FULL_STATE_DICT
   fsdp_sharding_strategy: FULL_SHARD
+  fsdp_backward_prefetch: BACKWARD_PRE
 special_tokens:
+  pad_token: <|finetune_right_pad_id|>
+  eos_token: <|eot_id|>
 
 # save_first_step: true  # uncomment this to validate checkpoint saving works with your config
