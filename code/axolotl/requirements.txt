@@ -9,4 +9,4 @@ flash-attn>=2.6.3
 deepspeed>=0.15.0
 
 # Install axolotl from GitHub
-git+https://github.com/axolotl-ai-cloud/axolotl.git
+git+git+https://github.com/malhajar17/axolotl_ex
