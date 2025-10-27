@@ -3,10 +3,13 @@ setuptools==75.8.0
 wheel
 ninja
 
+# PyTorch - explicit version to avoid alpha conflicts
+torch==2.8.0
+
 flash-attn>=2.6.3
 
 # Install deepspeed
 deepspeed>=0.15.0
 
 # Install axolotl from GitHub
-git+git+https://github.com/malhajar17/axolotl_ex
+git+https://github.com/malhajar17/axolotl_ex
